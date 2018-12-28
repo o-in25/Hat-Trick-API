@@ -14,7 +14,7 @@ module.exports = {
     // 'Content-Type': 'application/json', 'Authorization': 'Basic ' + btoa('eoin' + ':' + 'Password')
     // }
     makeRequest: function(request) {
-        // return a promuse
+        // return a promise
         console.log('HTTP Request Path: ' + request.path);
         return new Promise((resolve, reject) => {
             // the stream will begin as a string
@@ -49,7 +49,7 @@ module.exports = {
             })
         });
     },
-    buildRequest: function (version, sport, season, statType, requestParameters) {
+    buildRequest: function(version, sport, season, statType, requestParameters) {
         // ex: buildRequest('nba', '2017-2018', 'plus-minus', {'team':'cleveland-cavaliers, 'position':'pg'}
         // take a object
         // with 2 arrays containing the
