@@ -76,13 +76,13 @@ router.get('/player/:name', function(req, res, next) {
  * Gets all player stats for player
  * with a given position
  */
-router.get('/player/:position', function(req, res, next) {
+router.get('/player/:country', function(req, res, next) {
 
     function retrieve() {
         console.log('in the promise');
         return new Promise((resolve, reject) => {
             // build the request
-            let request = RequestManager.buildRequest('v2.0', 'nba', '2018-2019-regular', 'player_stats_totals', {player: req.params.position});
+            let request = RequestManager.buildRequest('v2.0', 'nba', '2018-2019-regular', 'player_stats_totals', {player: req.params.country});
             // make the request
             let data = RequestManager.makeRequest(request);
             if(data) {
