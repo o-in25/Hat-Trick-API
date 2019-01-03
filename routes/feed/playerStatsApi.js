@@ -3,6 +3,10 @@ let router = express.Router();
 // used for the request
 let RequestManager = require('../../middlewares/requestManager');
 
+/* gets the entire body response for each request */
+
+
+
 /*
  * Gets all player stats for all players
  */

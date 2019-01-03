@@ -9,6 +9,7 @@ let usersRouter = require('./routes/users');
 
 // newly added endpoints
 let playerStatsApi = require('./routes/feed/playerStatsApi');
+let playerNumericalStatsApi = require('./routes/feed/playerNumericalStatsApi');
 
 // create the express object
 let app = express();
@@ -26,5 +27,6 @@ app.use('/users', usersRouter);
 
 // feed endpoints
 app.use('/api/player-stats/', playerStatsApi);
+app.use('/api/player-stats/numerical/', playerNumericalStatsApi);
 
 module.exports = app;
