@@ -1,15 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="6ef4b31e-67ef-46d8-a5de-b23594b45afa" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/routes/feed/playerNumericalStatsApi.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/app.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/middlewares/responseParser.js" beforeDir="false" afterPath="$PROJECT_DIR$/middlewares/responseParser.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/routes/feed/playerStatsApi.js" beforeDir="false" afterPath="$PROJECT_DIR$/routes/feed/playerStatsApi.js" afterDir="false" />
-    </list>
+    <list default="true" id="6ef4b31e-67ef-46d8-a5de-b23594b45afa" name="Default" comment="" />
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
     <ignored path="$PROJECT_DIR$/tmp/" />
@@ -63,11 +55,20 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="playerNumericalStatsApi.js" pinned="false" current-in-tab="true">
+      <file leaf-file-name="playerNumericalStatsApi.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/routes/feed/playerNumericalStatsApi.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="523">
-              <caret line="37" column="25" lean-forward="true" selection-start-line="37" selection-start-column="25" selection-end-line="37" selection-end-column="25" />
+            <state relative-caret-position="613">
+              <caret line="43" column="24" lean-forward="true" selection-start-line="43" selection-start-column="24" selection-end-line="43" selection-end-column="24" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name=".gitignore" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/.gitignore">
+          <provider selected="true" editor-type-id="text-editor">
+            <state>
+              <caret column="12" selection-start-column="12" selection-end-column="12" />
             </state>
           </provider>
         </entry>
@@ -103,6 +104,7 @@
         <option value="$PROJECT_DIR$/middlewares/responseParser.js" />
         <option value="$PROJECT_DIR$/app.js" />
         <option value="$PROJECT_DIR$/routes/feed/playerNumericalStatsApi.js" />
+        <option value="$PROJECT_DIR$/.gitignore" />
       </list>
     </option>
   </component>
@@ -206,12 +208,12 @@
       <option name="presentableId" value="Default" />
       <updated>1545862776535</updated>
       <workItem from="1545862784270" duration="9467000" />
-      <workItem from="1546484378087" duration="6912000" />
+      <workItem from="1546484378087" duration="7150000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="16379000" />
+    <option name="totallyTimeSpent" value="16617000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-1920" y="-75" width="1920" height="1057" extended-state="6" />
@@ -342,8 +344,15 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/routes/feed/playerNumericalStatsApi.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="523">
-          <caret line="37" column="25" lean-forward="true" selection-start-line="37" selection-start-column="25" selection-end-line="37" selection-end-column="25" />
+        <state relative-caret-position="613">
+          <caret line="43" column="24" lean-forward="true" selection-start-line="43" selection-start-column="24" selection-end-line="43" selection-end-column="24" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.gitignore">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="12" selection-start-column="12" selection-end-column="12" />
         </state>
       </provider>
     </entry>
