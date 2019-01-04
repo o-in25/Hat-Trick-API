@@ -4,6 +4,7 @@ let router = express.Router();
 let RequestManager = require('../../middlewares/requestManager');
 let ResponseParser = require('../../middlewares/responseParser');
 
+
 /* gets the numerical response for each request */
 
 /*
@@ -34,10 +35,11 @@ router.get('/position/:position/stats/:stats', function(req, res, next) {
     // or reject it, then handle the
     // payload
     retrieve().then((data, field) => {
+        console.log(Model);
         // send the payload
         let wrapper = [];
         let payload = JSON.parse(data);
-        console.log("hi typeof  " + typeof payload.playerStatsTotals[0].team);
+        console.log(payload.playerStatsTotals[0].stats);
         for(let i = 0; i < payload.playerStatsTotals.length; i++) {
             let response = {};
             let playerStat = payload.playerStatsTotals[i];
@@ -46,8 +48,8 @@ router.get('/position/:position/stats/:stats', function(req, res, next) {
                 firstName: playerStat.player.firstName,
                 lastName: playerStat.player.lastName,
                 primaryPosition: playerStat.player.primaryPosition,
-                team: playerStat.team.team,
-                stats: field
+                team: playerStat.team.abbreviation,
+                stats: playerStat.stats.fieldGoals
             };
             //console.log(temp);
             wrapper.push(temp);
