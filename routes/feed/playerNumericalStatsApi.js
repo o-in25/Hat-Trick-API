@@ -11,7 +11,6 @@ let ResponseParser = require('../../middlewares/responseParser');
  * Gets the numerical stats for a given position
  */
 router.get('/position/:position/stats/:stats', function(req, res, next) {
-
     function retrieve() {
         console.log('in the promise');
         return new Promise((resolve, reject) => {
@@ -21,7 +20,7 @@ router.get('/position/:position/stats/:stats', function(req, res, next) {
             let data = RequestManager.makeRequest(request);
             // TODO MAKE THE ERROR HANDLER BETTER
             if(data) {
-                resolve(data, req.params.stats);
+                resolve(data);
             } else if(!data) {
                 // can't make the request
                 reject({'0': 'The Promise Request Could Not Be Made'})
@@ -34,29 +33,10 @@ router.get('/position/:position/stats/:stats', function(req, res, next) {
     // either resolve the request
     // or reject it, then handle the
     // payload
-    retrieve().then((data, field) => {
-        console.log(Model);
-        // send the payload
-        let wrapper = [];
-        let payload = JSON.parse(data);
-        console.log(payload.playerStatsTotals[0].stats);
-        for(let i = 0; i < payload.playerStatsTotals.length; i++) {
-            let response = {};
-            let playerStat = payload.playerStatsTotals[i];
-            let temp = {
-                id: playerStat.player.id.toString(),
-                firstName: playerStat.player.firstName,
-                lastName: playerStat.player.lastName,
-                primaryPosition: playerStat.player.primaryPosition,
-                team: playerStat.team.abbreviation,
-                stats: playerStat.stats.fieldGoals
-            };
-            //console.log(temp);
-            wrapper.push(temp);
-        }
-        let response = {};
-        response['data'] = wrapper;
-        res.send(response);
+    retrieve().then((payload) => {
+        let properties = {position: req.params.position, stats: req.params.stats};
+        console.log('parsing response');
+        ResponseParser.parseResponse(payload, properties);
     }).catch((err) => {
         // send an error
         res.send(err);
