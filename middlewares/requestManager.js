@@ -54,8 +54,8 @@ module.exports = {
         // take a object
         // with 2 arrays containing the
         // request and its value
-        const API_KEY = '67282fe9-2bc4-43c1-949a-cb40e4';
-        const PASSWORD = 'MYSPORTSFEEDS';
+        const API_KEY = '';
+        const PASSWORD = '';
         let res = '';
         let count = 0;
         for(let prop in requestParameters) {
