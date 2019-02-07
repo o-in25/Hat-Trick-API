@@ -2,6 +2,8 @@ let https = require('https');
 let btoa = require('btoa');
 let BufferedReader = require('buffer-reader');
 let url = require('url');
+let credentials = require('../credentials');
+
 module.exports = {
 
     // Goes out to MySportsFeeds and gets whatever
@@ -54,8 +56,9 @@ module.exports = {
         // take a object
         // with 2 arrays containing the
         // request and its value
-        const API_KEY = '67282fe9-2bc4-43c1-949a-cb40e4';
-        const PASSWORD = 'MYSPORTSFEEDS';
+        const API_KEY = credentials.mysportsfeeds.username;
+        const PASSWORD = credentials.mysportsfeeds.password;
+
         let res = '';
         let count = 0;
         for(let prop in requestParameters) {

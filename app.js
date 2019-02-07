@@ -2,10 +2,10 @@ let express = require('express');
 let path = require('path');
 let cookieParser = require('cookie-parser');
 let logger = require('morgan');
-
 // base necessary endpoints
 let indexRouter = require('./routes/index');
 let usersRouter = require('./routes/users');
+let db = require('./service/db');
 
 // newly added endpoints
 let playerStatsApi = require('./routes/feed/playerStatsApi');
@@ -20,6 +20,23 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
+
+// connect to db
+db.establishConnection(function(err) {
+    console.log((!err)? 'Connection to DB successful...' : err);
+});
+
+
+/**
+ * api endpoints
+ */
+
+
+
+function* foo() {
+    yield 8;
+}
 
 // base app endpoints
 app.use('/', indexRouter);
