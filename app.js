@@ -24,7 +24,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // connect to db
 db.establishConnection(function(err) {
-    console.log((!err)? 'connection successful' : err);
+    console.log((!err)? 'Connection to DB successful...' : err);
 });
 
 
