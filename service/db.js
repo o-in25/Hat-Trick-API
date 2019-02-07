@@ -10,15 +10,15 @@ const url = 'mongodb://' +  username + ':' + password + '@hattrickcluster-shard-
 let db;
 
 module.exports = {
-    establishConnection: function (callback) {
+    establishConnection: function(callback) {
         MongoClient.connect(url).then((data) => {
             db = data;
             callback();
-        }).catch(function (err) {
+        }).catch(function(err) {
             callback(err);
         });
     },
-    db: function () {
+    db: function() {
       return db;
     }
 };
