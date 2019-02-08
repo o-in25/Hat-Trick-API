@@ -2,7 +2,7 @@ let express = require('express');
 let router = express.Router();
 // used for the request
 let RequestManager = require('../../middlewares/requestManager');
-
+let db = require('../../service/db');
 /* gets the entire body response for each request */
 
 
@@ -34,6 +34,9 @@ router.get('/', function(req, res, next) {
     // or reject it
     retrieve().then((data) => {
         // send the payload
+        /**
+         * TEST
+         */
         res.send(data);
     }).catch((err) => {
         // send an error

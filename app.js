@@ -1,11 +1,16 @@
 let express = require('express');
 let path = require('path');
 let cookieParser = require('cookie-parser');
+
 let logger = require('morgan');
 // base necessary endpoints
 let indexRouter = require('./routes/index');
 let usersRouter = require('./routes/users');
 let db = require('./service/db');
+let credentials = require('./credentials');
+let responseParser = require('./middlewares/responseParser');
+let requestManager = require('./middlewares/requestManager');
+
 
 // newly added endpoints
 let playerStatsApi = require('./routes/feed/playerStatsApi');
@@ -18,12 +23,37 @@ let app = express();
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 //
 // connect to db
-db._testInsert();
+//db._testInsert();
+const url = 'mongodb://' +  credentials.mongo.username + ':' + credentials.mongo.password + '@hattrickcluster-shard-00-00-zgcgc.mongodb.net:27017,hattrickcluster-shard-00-01-zgcgc.mongodb.net:27017,hattrickcluster-shard-00-02-zgcgc.mongodb.net:27017/test?ssl=true&replicaSet=HatTrickCluster-shard-0&authSource=admin&retryWrites=true';
+
+
+let config = new Promise((resolve, reject) => {
+    let request = requestManager.buildRequest('v2.0', 'nba', '2018-2019-regular', 'player_stats_totals', {});
+    // make the request
+    let data = requestManager.makeRequest(request);
+    if(data) {
+        resolve(data);
+    } else {
+        reject();
+    }
+});
+
+config.then((data) => {
+   // console.log(data);
+    db.connection(url, 'HatTrickDB', 'PlayerStats', data);
+}).catch(() => {
+    console.log('oops');
+});
+//db.connection(url, 'HatTrickDB', 'PlayerStats', data);
+
+
 
 /**
  * api endpoints

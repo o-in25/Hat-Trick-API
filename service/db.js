@@ -7,33 +7,91 @@ const url = 'mongodb://' +  credentials.mongo.username + ':' + credentials.mongo
 
 // set up db
 let db;
+let client;
+let collection;
+
+// for testing
+let mockObj = {
+    test: "#FALNATION, FAL!!",
+    anotherTest: 420,
+    players: [{
+        name: "Eoin",
+        player: true
+    }, {
+        name: "Fal",
+        favoriteThing: "smoking weed"
+    }],
+    fal: true
+};
+
 
 module.exports = {
-    testInsert: function() {
-       let dbName = 'HatTrickDB';
-       let client = new MongoClient();
-       client.connect(function(err) {
-           console.log('Connected to sever');
-           const db = client.db(dbName);
+    connection: function(_url, _db, _collection, arr) {
+        console.log('Starting');
+        MongoClient.connect(url).then((_client) => {
+            console.log('Conneted');
+            client = _client;
+            db = _client.db(_db);
+            collection = db.collection(_collection);
 
-           const collection = db.collection('PlayerStats');
-           collection.insertMany([{
-               test: "Hello Fal!"
-           }], function(err, result) {
-               if(err) {
-                   console.log(err);
-               } else {
-                   console.log(result);
-               }
-           });
+            collection.insertMany([JSON.parse(arr)], {}).then((res) => {
+                // sucess
+                console.log('Done');
+            }).catch((err) => {
+                console.log('Failed to insert documents, cause: ' + err);
+            });
+        }).catch((err) => {
+            console.log("Error: " + err);
+        });
+    },
+    // accessor methods
+    // for use after
+    // connection
+    db: function() {
+        return db;
+    },
+    client: function() {
+        return client;
+    },
+    collection: function() {
+        return collection;
+    },
+    _insertMany: function(arr, options, callback) {
+        /*
+        let docs = [];
+        for(let el in arr) {
+            if(typeof el !== undefined || !el) {
+                // ad the doc
+                docs.push(el);
+            }
+        }
+         */
+       collection.insertMany([arr], options).then((res) => {
+           // sucess
+           callback(res);
+       }).catch((err) => {
+           throw new Error(err);
        });
     },
+    _insertOne: function(doc, options, callback) {
+        collection().insertOne(doc, options).then((res) => {
+            // sucess
+            callback(res);
+        }).catch((err) => {
+            throw new Error(err);
+        });
+    },
+
+
+
+
+
+    // just a test
     _testInsert: function() {
+        console.log(this);
         MongoClient.connect(url).then((client) => {
             const collection = client.db('HatTrickDB').collection('PlayerStats');
-            collection.insertMany([{
-                test: "#FALNATION"
-            }]).then((res) => {
+            collection.insertMany([mockObj]).then((res) => {
                 console.log(res);
             }).catch((err) => {
                 throw new Error(err);
@@ -43,8 +101,4 @@ module.exports = {
 
         });
     },
-
-    db: function() {
-      return db;
-    }
 };
