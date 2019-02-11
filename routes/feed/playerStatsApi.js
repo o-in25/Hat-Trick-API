@@ -37,6 +37,14 @@ router.get('/', function(req, res, next) {
         /**
          * TEST
          */
+
+
+        db.insert(db.getCollection(), [JSON.parse(data)], {}).then((res) => {
+            console.log('Inserted document successfully...')
+        }).catch((err) => {
+            console.log(err);
+        });
+
         res.send(data);
     }).catch((err) => {
         // send an error

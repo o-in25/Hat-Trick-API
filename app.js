@@ -33,6 +33,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 //db._testInsert();
 const url = 'mongodb://' +  credentials.mongo.username + ':' + credentials.mongo.password + '@hattrickcluster-shard-00-00-zgcgc.mongodb.net:27017,hattrickcluster-shard-00-01-zgcgc.mongodb.net:27017,hattrickcluster-shard-00-02-zgcgc.mongodb.net:27017/test?ssl=true&replicaSet=HatTrickCluster-shard-0&authSource=admin&retryWrites=true';
 
+db.init().then((res) => {
+    console.log('In the promise');
+
+}).catch((err) => {
+    console.log(err);
+});
 
 let config = new Promise((resolve, reject) => {
     let request = requestManager.buildRequest('v2.0', 'nba', '2018-2019-regular', 'player_stats_totals', {});
@@ -45,14 +51,17 @@ let config = new Promise((resolve, reject) => {
     }
 });
 
+
+
+/*
 config.then((data) => {
    // console.log(data);
-    db.connection(url, 'HatTrickDB', 'PlayerStats', data);
+
 }).catch(() => {
     console.log('oops');
 });
+ */
 //db.connection(url, 'HatTrickDB', 'PlayerStats', data);
-
 
 
 /**

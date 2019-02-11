@@ -1,14 +1,13 @@
 // mongodb
+let events = require('events');
 let MongoClient = require('mongodb').MongoClient;
 let assert = require('assert');
 let credentials = require('../credentials');
 // the connection string
-const url = 'mongodb://' +  credentials.mongo.username + ':' + credentials.mongo.password + '@hattrickcluster-shard-00-00-zgcgc.mongodb.net:27017,hattrickcluster-shard-00-01-zgcgc.mongodb.net:27017,hattrickcluster-shard-00-02-zgcgc.mongodb.net:27017/test?ssl=true&replicaSet=HatTrickCluster-shard-0&authSource=admin&retryWrites=true';
+let event = new events.EventEmitter();
+let delay = 300;
+let attempts = 0;
 
-// set up db
-let db;
-let client;
-let collection;
 
 // for testing
 let mockObj = {
@@ -24,81 +23,107 @@ let mockObj = {
     fal: true
 };
 
+let client = null;
+let db = null;
+let collection = null;
 
-module.exports = {
-    connection: function(_url, _db, _collection, arr) {
-        console.log('Starting');
-        MongoClient.connect(url).then((_client) => {
-            console.log('Conneted');
-            client = _client;
-            db = _client.db(_db);
-            collection = db.collection(_collection);
 
-            collection.insertMany([JSON.parse(arr)], {}).then((res) => {
-                // sucess
-                console.log('Done');
-            }).catch((err) => {
-                console.log('Failed to insert documents, cause: ' + err);
-            });
+module.exports.connect = function() {
+    setTimeout(init, delay);
+    function init() {
+        console.log('Connecting to db...');
+        const url = 'mongodb://' +  credentials.mongo.username + ':' + credentials.mongo.password + '@hattrickcluster-shard-00-00-zgcgc.mongodb.net:27017,hattrickcluster-shard-00-01-zgcgc.mongodb.net:27017,hattrickcluster-shard-00-02-zgcgc.mongodb.net:27017/test?ssl=true&replicaSet=HatTrickCluster-shard-0&authSource=admin&retryWrites=true';
+        MongoClient.connect(url).then((response) => {
+            console.log('Connection to db successful...');
+            client = response;
+            db = response.db('HatTrickDB');
+            collection = response.db('HatTrickDB').collection('PlayerStatsT');
+            event.emit('dbconnect');
         }).catch((err) => {
-            console.log("Error: " + err);
+            if(attempts < 4) {
+                console.log('Attempting to connect, attempt number ' + attempts + '...');
+                attempts++;
+                setTimeout(init, delay);
+            }
+            console.log(err);
         });
-    },
-    // accessor methods
-    // for use after
-    // connection
-    db: function() {
-        return db;
-    },
-    client: function() {
-        return client;
-    },
-    collection: function() {
-        return collection;
-    },
-    _insertMany: function(arr, options, callback) {
-        /*
-        let docs = [];
-        for(let el in arr) {
-            if(typeof el !== undefined || !el) {
-                // ad the doc
-                docs.push(el);
+    }
+
+};
+
+
+module.exports.init = function() {
+    return new Promise((resolve, reject) => {
+        console.log('Connecting to db...');
+        const url = 'mongodb://' +  credentials.mongo.username + ':' + credentials.mongo.password + '@hattrickcluster-shard-00-00-zgcgc.mongodb.net:27017,hattrickcluster-shard-00-01-zgcgc.mongodb.net:27017,hattrickcluster-shard-00-02-zgcgc.mongodb.net:27017/test?ssl=true&replicaSet=HatTrickCluster-shard-0&authSource=admin&retryWrites=true';
+        MongoClient.connect(url).then((response) => {
+            console.log('Connection to db successful...');
+            client = response;
+            db = response.db('HatTrickDB');
+            collection = response.db('HatTrickDB').collection('PlayerStatsT');
+            let config = {
+                client:client,
+                db:db,
+                collection:collection
+            };
+            resolve(config);
+        }).catch((err) => {
+            reject(err);
+        });
+    });
+};
+
+module.exports.getDb = function() {
+    return db;
+};
+
+module.exports.getCollection = function() {
+    return collection;
+};
+
+module.exports.insert = function(collection, documents, options) {
+    return new Promise((resolve, reject) => {
+        if(!collection) {
+            reject(new Error('Collection cannot be undefined'));
+        } else {
+            if(typeof documents != "object" && !documents.hasOwnProperty('length')) {
+                reject(new Error('Document must be of type array'));
+            } else {
+                collection.insertMany(documents, options).then((res) => {
+                    resolve(res);
+                }).catch((err) => {
+                    reject(err);
+                });
             }
         }
-         */
-       collection.insertMany([arr], options).then((res) => {
-           // sucess
-           callback(res);
-       }).catch((err) => {
-           throw new Error(err);
-       });
-    },
-    _insertOne: function(doc, options, callback) {
-        collection().insertOne(doc, options).then((res) => {
-            // sucess
-            callback(res);
-        }).catch((err) => {
-            throw new Error(err);
-        });
-    },
+    })
+};
+
+
+module.exports.insertOne = function(doc, options, callback, collection) {
+    collection.insertOne(doc, options).then((res) => {
+        // sucess
+        callback(res);
+    }).catch((err) => {
+        throw new Error(err);
+    });
+};
 
 
 
 
 
     // just a test
-    _testInsert: function() {
-        console.log(this);
-        MongoClient.connect(url).then((client) => {
-            const collection = client.db('HatTrickDB').collection('PlayerStats');
-            collection.insertMany([mockObj]).then((res) => {
-                console.log(res);
-            }).catch((err) => {
-                throw new Error(err);
-            });
+module.exports.testInsert = function() {
+    MongoClient.connect(url).then((client) => {
+        const collection = client.db('HatTrickDB').collection('PlayerStats');
+        collection.insertMany([mockObj]).then((res) => {
+            console.log(res);
         }).catch((err) => {
             throw new Error(err);
-
         });
-    },
+    }).catch((err) => {
+        throw new Error(err);
+
+    });
 };
