@@ -11,51 +11,28 @@ let attempts = 0;
 
 // for testing
 let mockObj = {
-    test: "#FALNATION, FAL!!",
+    test: "#FALNATION",
     anotherTest: 420,
     players: [{
         name: "Eoin",
         player: true
     }, {
         name: "Fal",
-        favoriteThing: "smoking weed"
+        favoriteThing: "beer"
     }],
     fal: true
 };
 
+/* db utilities */
 let client = null;
 let db = null;
 let collection = null;
 
-
-module.exports.connect = function() {
-    setTimeout(init, delay);
-    function init() {
-        console.log('Connecting to db...');
-        const url = 'mongodb://' +  credentials.mongo.username + ':' + credentials.mongo.password + '@hattrickcluster-shard-00-00-zgcgc.mongodb.net:27017,hattrickcluster-shard-00-01-zgcgc.mongodb.net:27017,hattrickcluster-shard-00-02-zgcgc.mongodb.net:27017/test?ssl=true&replicaSet=HatTrickCluster-shard-0&authSource=admin&retryWrites=true';
-        MongoClient.connect(url).then((response) => {
-            console.log('Connection to db successful...');
-            client = response;
-            db = response.db('HatTrickDB');
-            collection = response.db('HatTrickDB').collection('PlayerStatsT');
-            event.emit('dbconnect');
-        }).catch((err) => {
-            if(attempts < 4) {
-                console.log('Attempting to connect, attempt number ' + attempts + '...');
-                attempts++;
-                setTimeout(init, delay);
-            }
-            console.log(err);
-        });
-    }
-
-};
-
-
-module.exports.init = function() {
+// initializes the
+// db connection
+module.exports.init = function(url) {
     return new Promise((resolve, reject) => {
         console.log('Connecting to db...');
-        const url = 'mongodb://' +  credentials.mongo.username + ':' + credentials.mongo.password + '@hattrickcluster-shard-00-00-zgcgc.mongodb.net:27017,hattrickcluster-shard-00-01-zgcgc.mongodb.net:27017,hattrickcluster-shard-00-02-zgcgc.mongodb.net:27017/test?ssl=true&replicaSet=HatTrickCluster-shard-0&authSource=admin&retryWrites=true';
         MongoClient.connect(url).then((response) => {
             console.log('Connection to db successful...');
             client = response;
@@ -73,14 +50,22 @@ module.exports.init = function() {
     });
 };
 
-module.exports.getDb = function() {
+module.exports.getDb = () => {
     return db;
 };
 
-module.exports.getCollection = function() {
+module.exports.getCollection = () => {
     return collection;
 };
 
+module.exports.getClient = () => {
+    return client;
+};
+
+
+/*
+Insert
+ */
 module.exports.insert = function(collection, documents, options) {
     return new Promise((resolve, reject) => {
         if(!collection) {
@@ -110,10 +95,7 @@ module.exports.insertOne = function(doc, options, callback, collection) {
 };
 
 
-
-
-
-    // just a test
+// just a test
 module.exports.testInsert = function() {
     MongoClient.connect(url).then((client) => {
         const collection = client.db('HatTrickDB').collection('PlayerStats');
