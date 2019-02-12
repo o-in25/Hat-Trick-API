@@ -6,7 +6,10 @@ let logger = require('morgan');
 // base necessary endpoints
 let indexRouter = require('./routes/index');
 let usersRouter = require('./routes/users');
+// db
 let db = require('./service/db');
+let dbService = require('./service/dbService');
+// credentials
 let credentials = require('./credentials');
 let responseParser = require('./middlewares/responseParser');
 let requestManager = require('./middlewares/requestManager');
@@ -31,9 +34,14 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // connect to db
 const url = 'mongodb://' +  credentials.mongo.username + ':' + credentials.mongo.password + '@hattrickcluster-shard-00-00-zgcgc.mongodb.net:27017,hattrickcluster-shard-00-01-zgcgc.mongodb.net:27017,hattrickcluster-shard-00-02-zgcgc.mongodb.net:27017/test?ssl=true&replicaSet=HatTrickCluster-shard-0&authSource=admin&retryWrites=true';
-let client;
-db.init(url).then((res) => {
-    client = res;
+let options = {};
+let query = {
+    firstName: "Carmelo"
+};
+db.init(url).then((config) => {
+    dbService.find(config.collection, query, options).then((result) => {
+        console.log(result);
+    }).catch();
 }).catch((err) => {
     console.log(err);
 });

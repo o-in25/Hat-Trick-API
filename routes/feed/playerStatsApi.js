@@ -2,7 +2,7 @@ let express = require('express');
 let router = express.Router();
 // used for the request
 let RequestManager = require('../../middlewares/requestManager');
-let db = require('../../service/db');
+let dbSercive = require('../../service/dbService');
 /* gets the entire body response for each request */
 
 

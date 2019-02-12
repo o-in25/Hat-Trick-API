@@ -1,4 +1,4 @@
-let db = require('./db.js');
+let db = require('./db');
 
 
 /*
@@ -9,7 +9,7 @@ module.exports.insert = function(collection, documents, options) {
         if(!collection) {
             reject(new Error('Collection cannot be undefined'));
         } else {
-            if(typeof documents != "object" && !documents.hasOwnProperty('length')) {
+            if(typeof documents !== "object" && !documents.hasOwnProperty('length')) {
                 reject(new Error('Document must be of type array'));
             } else {
                 collection.insertMany(documents, options).then((res) => {
@@ -22,3 +22,20 @@ module.exports.insert = function(collection, documents, options) {
     })
 };
 
+module.exports.find = function(collection, query, options) {
+    return new Promise((resolve, reject) => {
+       if(!collection) {
+           reject(new Error('Collection cannot be undefined'));
+       } else if(typeof query !== "object") {
+           reject(new Error('Query must be of type object'));
+       } else {
+           collection.find(query, options).toArray(function(err, res) {
+               if(err) {
+                   reject(new Error(err));
+               } else {
+                   resolve(res);
+               }
+           });
+       }
+    });
+};

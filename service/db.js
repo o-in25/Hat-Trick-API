@@ -1,13 +1,7 @@
 // mongodb
-let events = require('events');
 let MongoClient = require('mongodb').MongoClient;
 let assert = require('assert');
 let credentials = require('../credentials');
-// the connection string
-let event = new events.EventEmitter();
-let delay = 300;
-let attempts = 0;
-
 
 // for testing
 let mockObj = {
@@ -36,8 +30,8 @@ module.exports.init = function(url) {
         MongoClient.connect(url).then((response) => {
             console.log('Connection to db successful...');
             client = response;
-            db = response.db('HatTrickDB');
-            collection = response.db('HatTrickDB').collection('PlayerStatsT');
+            db = response.db(credentials.mongo.dbs.dbTest);
+            collection = db.collection(credentials.mongo.collections.collectionTest);
             let config = {
                 client:client,
                 db:db,
