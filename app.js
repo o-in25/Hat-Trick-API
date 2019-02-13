@@ -14,6 +14,20 @@ let credentials = require('./credentials');
 let responseParser = require('./middlewares/responseParser');
 let requestManager = require('./middlewares/requestManager');
 
+//connect to db
+const url = 'mongodb://' +  credentials.mongo.username + ':' + credentials.mongo.password + '@hattrickcluster-shard-00-00-zgcgc.mongodb.net:27017,hattrickcluster-shard-00-01-zgcgc.mongodb.net:27017,hattrickcluster-shard-00-02-zgcgc.mongodb.net:27017/test?ssl=true&replicaSet=HatTrickCluster-shard-0&authSource=admin&retryWrites=true';
+let options = {};
+db.init(url).then((config) => {
+    dbService.find(config.collection, { "player.firstName":"LeBron" }, {}).then((res) => {
+        console.log(res);
+        //
+    }).catch((err) => {
+        throw new Error(err);
+    });
+}).catch((err) => {
+    throw new Error(err);
+});
+
 
 // newly added endpoints
 let playerStatsApi = require('./routes/feed/playerStatsApi');
