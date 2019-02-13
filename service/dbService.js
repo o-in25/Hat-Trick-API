@@ -39,3 +39,19 @@ module.exports.find = function(collection, query, options) {
        }
     });
 };
+// this probably does not work
+module.exports.aggregate = function(collection, options, aggregation, callback) {
+    collection.aggregate(collection, options, callback);
+};
+
+
+
+module.exports.distinct = function(collection, key, query, options) {
+    return new Promise((resolve, reject) => {
+        collection.distinct(key, query, options).then((result) => {
+            resolve(result);
+        }).catch((err) => {
+            reject(err);
+        });
+    });
+};

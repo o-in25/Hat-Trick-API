@@ -27,7 +27,10 @@ let collection = null;
 module.exports.init = function(url) {
     return new Promise((resolve, reject) => {
         console.log('Connecting to db...');
-        MongoClient.connect(url).then((response) => {
+        let options = {
+            useNewUrlParser: true
+        };
+        MongoClient.connect(url, options).then((response) => {
             console.log('Connection to db successful...');
             client = response;
             db = response.db(credentials.mongo.dbs.dbTest);
