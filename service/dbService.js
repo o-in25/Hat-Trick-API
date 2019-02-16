@@ -1,6 +1,5 @@
 let db = require('./db');
 
-
 /*
 Insert
  */
@@ -22,6 +21,19 @@ module.exports.insert = function(collection, documents, options) {
     })
 };
 
+module.exports.update = function(collection, query, update, options) {
+    return new Promise((resolve, reject) => {
+        if(!collection) {
+            reject(new Error('Collection cannot be undefined'));
+        } else {
+            collection.update(query, update, options);
+        }
+    });
+};
+
+
+
+
 module.exports.find = function(collection, query, options) {
     return new Promise((resolve, reject) => {
        if(!collection) {
@@ -33,7 +45,7 @@ module.exports.find = function(collection, query, options) {
                if(err) {
                    reject(new Error(err));
                } else {
-                   resolve(res);
+                   resolve();
                }
            });
        }
@@ -43,8 +55,6 @@ module.exports.find = function(collection, query, options) {
 module.exports.aggregate = function(collection, options, aggregation, callback) {
     collection.aggregate(collection, options, callback);
 };
-
-
 
 module.exports.distinct = function(collection, key, query, options) {
     return new Promise((resolve, reject) => {

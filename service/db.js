@@ -31,16 +31,18 @@ module.exports.init = function(url) {
             useNewUrlParser: true
         };
         MongoClient.connect(url, options).then((response) => {
-            console.log('Connection to db successful...');
+            console.log('Working...');
             client = response;
+            // specify the database
             db = response.db(credentials.mongo.dbs.dbTest);
-            collection = db.collection(credentials.mongo.collections.collectionTest);
+            // specify the collection
+            collection = db.collection(credentials.mongo.collections.collectionSandbox);
             let config = {
                 client:client,
                 db:db,
                 collection:collection
             };
-            resolve(config);
+            resolve(config  );
         }).catch((err) => {
             reject(err);
         });
