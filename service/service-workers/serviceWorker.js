@@ -1,28 +1,7 @@
 let db = require('../db');
 let dbService = require('../dbService');
-// credentials
-let credentials = require('../../credentials');
+// request manager
 let requestManager = require('../../middlewares/requestManager');
-let fs = require('fs');
-
-// for testing
-let mockObj = {
-    id: 420,
-    name: "Eoin",
-    fal: true,
-    thingsILike: [
-        {
-            thing1: "beer",
-            when:"always"
-        },
-        {
-            thing2: "scotch",
-            when:"everyday"
-        },
-    ],
-    smokesWeed: true
-};
-
 
 // retrieves all players
 function getAllPlayers() {
@@ -40,6 +19,7 @@ function getAllPlayers() {
     });
 }
 
+// insert all the players
 module.exports.insertAllPlayers = function() {
     getAllPlayers().then((data) => {
         // connect to db
@@ -59,6 +39,7 @@ module.exports.insertAllPlayers = function() {
 // update all of the players
 module.exports.updateAllPlayers = function() {
     getAllPlayers().then((data) => {
+        let options = {};
         let players = JSON.parse(data).playerStatsTotals;
         // get each player by id
         console.log(players[0]);
@@ -70,7 +51,7 @@ module.exports.updateAllPlayers = function() {
             // update the entry in the db with that corresponding id
             // with the new data
             // btw there are always 806 elements in the collection
-            dbService.update(db.getCollection(), {"player.id":currentId}, currentPlayer, {}).then((res) => {
+            dbService.update(db.getCollection(), {"player.id":currentId}, currentPlayer, options).then((res) => {
                 console.log('Entry updated...');
             }).catch((err) => {
                 throw new Error(err);
@@ -80,6 +61,10 @@ module.exports.updateAllPlayers = function() {
 
 };
 
+
+/**
+ * Testing stuff, might delete later
+ */
 module.exports.updateTest = function() {
   dbService.update(db.getCollection(), {id:420}, {fal:false});
 };
