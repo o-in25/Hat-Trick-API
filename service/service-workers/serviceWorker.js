@@ -1,3 +1,9 @@
+/**
+ * Service worker, will be responsible for
+ * frequently updating the database and making calculations
+ */
+
+
 let db = require('../db');
 let dbService = require('../dbService');
 // request manager

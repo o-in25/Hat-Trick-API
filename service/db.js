@@ -1,3 +1,11 @@
+/**
+ * The database connection as well as
+ * accessor methods for getting the mongo
+ * client, the db connection, or
+ * the particular collection that we are working on,
+ * also has a mock object for testing
+ */
+
 // mongodb
 let MongoClient = require('mongodb').MongoClient;
 let assert = require('assert');

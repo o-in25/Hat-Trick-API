@@ -1,8 +1,9 @@
-let db = require('./db');
-
-/*
-Insert
+/**
+ * Has all of the CRUD methods for accessing the database that
+ * we would need, plus a few extra goodies...
  */
+
+
 module.exports.insert = function(collection, documents, options) {
     return new Promise((resolve, reject) => {
         if(!collection) {
@@ -51,6 +52,8 @@ module.exports.find = function(collection, query, options) {
        }
     });
 };
+
+
 // this probably does not work
 module.exports.aggregate = function(collection, options, aggregation, callback) {
     collection.aggregate(collection, options, callback);
