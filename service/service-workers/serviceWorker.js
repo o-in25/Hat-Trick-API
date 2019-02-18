@@ -3,7 +3,7 @@ let dbService = require('../dbService');
 // credentials
 let credentials = require('../../credentials');
 let requestManager = require('../../middlewares/requestManager');
-
+let fs = require('fs');
 
 // for testing
 let mockObj = {
@@ -23,7 +23,9 @@ let mockObj = {
     smokesWeed: true
 };
 
-function retrieve() {
+
+// retrieves all players
+function getAllPlayers() {
     console.log('in the promise');
     return new Promise((resolve, reject) => {
         let request = requestManager.buildRequest('v2.0', 'nba', '2018-2019-regular', 'player_stats_totals', {});
@@ -39,13 +41,14 @@ function retrieve() {
 }
 
 module.exports.insertAllPlayers = function() {
-    retrieve().then((data) => {
+    getAllPlayers().then((data) => {
         // connect to db
         let options = {};
         let players = JSON.parse(data).playerStatsTotals;
-        for(let i = 0; i < 1; i++) {
+        for(let i = 0; i < players.length; i++) {
             console.log(players[i]);
             dbService.insert(db.getCollection(), [players[i]], options).then((res) => {
+
             }).catch((err) => {});
         }
     }).catch((data) => {
@@ -55,7 +58,26 @@ module.exports.insertAllPlayers = function() {
 
 // update all of the players
 module.exports.updateAllPlayers = function() {
-    retrieve().then().catch();
+    getAllPlayers().then((data) => {
+        let players = JSON.parse(data).playerStatsTotals;
+        // get each player by id
+        console.log(players[0]);
+        for(let i = 0; i < players.length; i++) {
+            let currentPlayer = (players[i]).player;
+            let currentId = currentPlayer.id;
+            // idk if this logic is correct or not, but in either case, all that needs to be
+            // done is get each player in the payload by id and
+            // update the entry in the db with that corresponding id
+            // with the new data
+            // btw there are always 806 elements in the collection
+            dbService.update(db.getCollection(), {"player.id":currentId}, currentPlayer, {}).then((res) => {
+                console.log('Entry updated...');
+            }).catch((err) => {
+                throw new Error(err);
+            });
+        }
+    });
+
 };
 
 module.exports.updateTest = function() {

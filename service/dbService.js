@@ -45,7 +45,7 @@ module.exports.find = function(collection, query, options) {
                if(err) {
                    reject(new Error(err));
                } else {
-                   resolve();
+                   resolve(res);
                }
            });
        }

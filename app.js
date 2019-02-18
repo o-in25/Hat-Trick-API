@@ -21,7 +21,9 @@ const url = 'mongodb://' +  credentials.mongo.username + ':' + credentials.mongo
 db.init(url).then((config) => {
    console.log('Connected to db...');
     //serviceWorker.insertTest();
-    serviceWorker.updateTest();
+    //serviceWorker.updateTest();
+    serviceWorker.updateAllPlayers();
+    //serviceWorker.updateAllPlayers();
 }).catch((err) => {
     throw new Error(err);
 });
