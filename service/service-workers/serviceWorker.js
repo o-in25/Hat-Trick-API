@@ -16,12 +16,21 @@ function getAllPlayers() {
         let request = requestManager.buildRequest('v2.0', 'nba', '2018-2019-regular', 'player_stats_totals', {});
         let data = requestManager.makeRequest(request);
         if(data) {
-            resolve(data);
+            resolve(JSON.parse(data));
         } else if(!data) {
-            reject({'0': 'The Promise Request Could Not Be Made'})
+            reject({'0': 'The Promise Request Could Not Be Made'});
         } else if(data.playerStatsTotals.length == 0) {
-            reject({'1': 'The Requested Resource Could Not Be Found'})
+            reject({'1': 'The Requested Resource Could Not Be Found'});
         }
+    });
+}
+
+
+function timestamp(data, options) {
+    dbService.insert(db.getCollection(), [data.lastUpdatedOn], options).then((result) => {
+        console.log('Timestamp added');
+    }).catch((err) => {
+        throw new Error('Failed to add timestamp ' + err);
     });
 }
 
@@ -30,7 +39,8 @@ module.exports.insertAllPlayers = function() {
     getAllPlayers().then((data) => {
         // connect to db
         let options = {};
-        let players = JSON.parse(data).playerStatsTotals;
+        timestamp(data, options);
+        let players = data.playerStatsTotals;
         for(let i = 0; i < players.length; i++) {
             console.log(players[i]);
             dbService.insert(db.getCollection(), [players[i]], options).then((res) => {
