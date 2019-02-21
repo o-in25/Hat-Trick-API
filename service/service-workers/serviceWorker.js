@@ -9,6 +9,11 @@ let dbService = require('../dbService');
 // request manager
 let requestManager = require('../../middlewares/requestManager');
 
+
+function* generate() {
+    yield 10;
+}
+
 // retrieves all players
 function getAllPlayers() {
     console.log('in the promise');
@@ -16,21 +21,23 @@ function getAllPlayers() {
         let request = requestManager.buildRequest('v2.0', 'nba', '2018-2019-regular', 'player_stats_totals', {});
         let data = requestManager.makeRequest(request);
         if(data) {
-            resolve(JSON.parse(data));
+            resolve(data);
         } else if(!data) {
-            reject({'0': 'The Promise Request Could Not Be Made'});
+            reject('The Promise Request Could Not Be Made');
         } else if(data.playerStatsTotals.length == 0) {
-            reject({'1': 'The Requested Resource Could Not Be Found'});
+            reject('The Requested Resource Could Not Be Found');
         }
     });
 }
 
 
 function timestamp(data, options) {
-    dbService.insert(db.getCollection(), [data.lastUpdatedOn], options).then((result) => {
+    console.log(data.lastUpdatedOn);
+    let date = {"Lasted Updated" : data.lastUpdatedOn};
+    dbService.insert(db.getCollection(), [date], options).then((result) => {
         console.log('Timestamp added');
     }).catch((err) => {
-        throw new Error('Failed to add timestamp ' + err);
+        console.log(new Error('Failed to add timestamp ' + err));
     });
 }
 
@@ -39,16 +46,20 @@ module.exports.insertAllPlayers = function() {
     getAllPlayers().then((data) => {
         // connect to db
         let options = {};
-        timestamp(data, options);
+        let payload = JSON.parse(data);
+        timestamp(payload, options);
         let players = data.playerStatsTotals;
+       /*
         for(let i = 0; i < players.length; i++) {
             console.log(players[i]);
             dbService.insert(db.getCollection(), [players[i]], options).then((res) => {
 
             }).catch((err) => {});
         }
+        */
     }).catch((data) => {
-        throw new Error(data);
+        console.log(data);
+        console.log(new Error(data));
     });
 };
 
@@ -56,7 +67,8 @@ module.exports.insertAllPlayers = function() {
 module.exports.updateAllPlayers = function() {
     getAllPlayers().then((data) => {
         let options = {};
-        let players = JSON.parse(data).playerStatsTotals;
+        timestamp(data, options);
+        let players = data.playerStatsTotals;
         // get each player by id
         console.log(players[0]);
         for(let i = 0; i < players.length; i++) {

@@ -44,13 +44,15 @@ module.exports.init = function(url) {
             // specify the database
             db = response.db(credentials.mongo.dbs.dbTest);
             // specify the collection
-            collection = db.collection(credentials.mongo.collections.collectionDev);
+            collection = db.collection(credentials.mongo.collections.collectionFix);
             let config = {
                 client:client,
                 db:db,
                 collection:collection
             };
-            resolve(config  );
+
+            resolve(config);
+
         }).catch((err) => {
             reject(err);
         });
