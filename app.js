@@ -29,7 +29,7 @@ db.init(url).then((config) => {
     //serviceWorker.updateTest();
     //serviceWorker.updateAllPlayers();
     //serviceWorker.updateAllPlayers();
-    serviceWorker.insertAllPlayers();
+    serviceWorker.updateAll();
 }).catch((err) => {
     throw new Error(err);
 });

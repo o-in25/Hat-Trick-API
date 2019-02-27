@@ -6,6 +6,7 @@
 
 let db = require('../db');
 let dbService = require('../dbService');
+let ObjectId = require('mongodb').ObjectID;
 // request manager
 let requestManager = require('../../middlewares/requestManager');
 
@@ -33,7 +34,7 @@ function getAllPlayers() {
 
 function timestamp(data, options) {
     console.log(data.lastUpdatedOn);
-    let date = {"Lasted Updated" : data.lastUpdatedOn};
+    let date = {"LastedUpdated" : data.lastUpdatedOn};
     dbService.insert(db.getCollection(), [date], options).then((result) => {
         console.log('Timestamp added');
     }).catch((err) => {
@@ -47,47 +48,61 @@ module.exports.insertAllPlayers = function() {
         // connect to db
         let options = {};
         let payload = JSON.parse(data);
+        let players = payload.playerStatsTotals;
+        // insert
         timestamp(payload, options);
-        let players = data.playerStatsTotals;
-       /*
         for(let i = 0; i < players.length; i++) {
             console.log(players[i]);
             dbService.insert(db.getCollection(), [players[i]], options).then((res) => {
-
             }).catch((err) => {});
         }
-        */
+
     }).catch((data) => {
         console.log(data);
         console.log(new Error(data));
     });
 };
 
-// update all of the players
-module.exports.updateAllPlayers = function() {
+
+
+module.exports.updateAll = function() {
     getAllPlayers().then((data) => {
+        let payload = JSON.parse(data);
+        //console.log(payload.playerStatsTotals[0]);
         let options = {};
-        timestamp(data, options);
-        let players = data.playerStatsTotals;
-        // get each player by id
-        console.log(players[0]);
-        for(let i = 0; i < players.length; i++) {
-            let currentPlayer = (players[i]).player;
-            let currentId = currentPlayer.id;
-            // idk if this logic is correct or not, but in either case, all that needs to be
-            // done is get each player in the payload by id and
-            // update the entry in the db with that corresponding id
-            // with the new data
-            // btw there are always 806 elements in the collection
-            dbService.update(db.getCollection(), {"player.id":currentId}, currentPlayer, options).then((res) => {
-                console.log('Entry updated...');
-            }).catch((err) => {
-                throw new Error(err);
-            });
-        }
+        let collection = db.getCollection();
+        // get all the elements in the collection,
+        // since we must get their object ids
+        let playerStats = payload.playerStatsTotals;
+        timestamp(payload, options);
+        dbService.find(collection, {}, options).then((mongoData) => {
+            // the mongo data
+            for(let i = 0; i < mongoData.length; i++)  {
+                if(typeof mongoData[i].id !== "undefined") {
+                    let counter = 0;
+                    let player = playerStats.find((obj, index) => {
+                        if(mongoData[i].id == obj.player.id) {
+                            counter = index;
+                            return mongoData[i].id == obj.player.id;
+                        }
+                    });
+                    dbService.update(collection, {"_id":ObjectId(mongoData[counter]._id.toString())}, player, options).then((res) => {
+                        console.log('Successfully updated...');
+                    }).catch((err) => {
+                        throw new Error(err);
+                    });
+                }
+            }
+        }).catch((err) => {
+            throw new Error(err);
+        });
+    }).catch((err) => {
+        throw new Error(err);
     });
 
 };
+
+
 
 
 /**
