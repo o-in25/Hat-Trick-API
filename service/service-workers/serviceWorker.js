@@ -11,11 +11,8 @@ let ObjectId = require('mongodb').ObjectID;
 let requestManager = require('../../middlewares/requestManager');
 
 
-function* generate() {
-    yield 10;
-}
-
-// retrieves all players
+// retrieves all players from
+// mysportsfeeds
 function getAllPlayers() {
     console.log('in the promise');
     return new Promise((resolve, reject) => {
@@ -31,7 +28,8 @@ function getAllPlayers() {
     });
 }
 
-
+// timestamps the last time the mysportsfeeds
+// payload was updated
 function timestamp(data, options) {
     console.log(data.lastUpdatedOn);
     let date = {"LastedUpdated" : data.lastUpdatedOn};
@@ -64,11 +62,11 @@ module.exports.insertAllPlayers = function() {
 };
 
 
-
-module.exports.updateAll = function() {
+// updates a player from a given player id
+// with the news mysportsfeeds payload response
+module.exports.updateAllPlayers = function() {
     getAllPlayers().then((data) => {
         let payload = JSON.parse(data);
-        //console.log(payload.playerStatsTotals[0]);
         let options = {};
         let collection = db.getCollection();
         // get all the elements in the collection,
@@ -81,6 +79,7 @@ module.exports.updateAll = function() {
                 if(typeof mongoData[i].id !== "undefined") {
                     let counter = 0;
                     let player = playerStats.find((obj, index) => {
+                        // TODO: avoid type coercion
                         if(mongoData[i].id == obj.player.id) {
                             counter = index;
                             return mongoData[i].id == obj.player.id;

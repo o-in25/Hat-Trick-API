@@ -27,6 +27,7 @@ module.exports.update = function(collection, query, update, options) {
         if(!collection) {
             reject(new Error('Collection cannot be undefined'));
         } else {
+            options = options || {};
             collection.update(query, update, options);
         }
     });
