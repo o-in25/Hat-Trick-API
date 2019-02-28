@@ -10,10 +10,9 @@ let ObjectId = require('mongodb').ObjectID;
 // request manager
 let requestManager = require('../../middlewares/requestManager');
 
-
 // retrieves all players from
 // mysportsfeeds
-function getAllPlayers() {
+module.exports.getAllPlayers = function() {
     console.log('in the promise');
     return new Promise((resolve, reject) => {
         let request = requestManager.buildRequest('v2.0', 'nba', '2018-2019-regular', 'player_stats_totals', {});
@@ -26,7 +25,7 @@ function getAllPlayers() {
             reject('The Requested Resource Could Not Be Found');
         }
     });
-}
+};
 
 // timestamps the last time the mysportsfeeds
 // payload was updated
@@ -42,7 +41,7 @@ function timestamp(data, options) {
 
 // insert all the players
 module.exports.insertAllPlayers = function() {
-    getAllPlayers().then((data) => {
+    this.getAllPlayers().then((data) => {
         // connect to db
         let options = {};
         let payload = JSON.parse(data);
@@ -54,7 +53,6 @@ module.exports.insertAllPlayers = function() {
             dbService.insert(db.getCollection(), [players[i]], options).then((res) => {
             }).catch((err) => {});
         }
-
     }).catch((data) => {
         console.log(data);
         console.log(new Error(data));
@@ -65,7 +63,7 @@ module.exports.insertAllPlayers = function() {
 // updates a player from a given player id
 // with the news mysportsfeeds payload response
 module.exports.updateAllPlayers = function() {
-    getAllPlayers().then((data) => {
+    this.getAllPlayers().then((data) => {
         let payload = JSON.parse(data);
         let options = {};
         let collection = db.getCollection();
@@ -100,9 +98,6 @@ module.exports.updateAllPlayers = function() {
     });
 
 };
-
-
-
 
 /**
  * Testing stuff, might delete later
