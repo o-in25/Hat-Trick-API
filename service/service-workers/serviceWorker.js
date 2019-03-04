@@ -9,6 +9,7 @@ let dbService = require('../dbService');
 let ObjectId = require('mongodb').ObjectID;
 // request manager
 let requestManager = require('../../middlewares/requestManager');
+let responseParser = require('../../middlewares/responseParser');
 
 // retrieves all players from
 // mysportsfeeds
@@ -49,7 +50,6 @@ module.exports.insertAllPlayers = function() {
         // insert
         timestamp(payload, options);
         for(let i = 0; i < players.length; i++) {
-            console.log(players[i]);
             dbService.insert(db.getCollection(), [players[i]], options).then((res) => {
             }).catch((err) => {});
         }
@@ -64,6 +64,7 @@ module.exports.insertAllPlayers = function() {
 // with the news mysportsfeeds payload response
 module.exports.updateAllPlayers = function() {
     this.getAllPlayers().then((data) => {
+        console.log((responseParser.createPayloadFromData(data)[0]));
         let payload = JSON.parse(data);
         let options = {};
         let collection = db.getCollection();

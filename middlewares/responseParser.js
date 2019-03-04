@@ -1,50 +1,23 @@
-// a json object that will wrap the request
-let Model = require('./model');
-
 module.exports = {
 
-  parseResponse: function(payload, properties) {
-      // extract the specified properties from the
-      // payload in a neat obj
-      let response = {};
-      // traverse the model
-      let k = 0;
-      function process(key, val, prop) {
 
-          console.log('iteration ' + k );
-          k++;
-          // called for each property
-          // in the model
-          if(key === properties[key]) {
-              // push to response
-              //response[key] = val;
-              console.log(properties[key]);
-              switch(val) {
-                  case val === "string":
-                      response[prop] = payload[val];
-                  case val === "string":
-                      response[prop] = payload[val].toString();
-                  case val === "boolean":
-                      response[prop] = payload[val].toString();
-              }
-          }
+  // takes the raw data from the stream and edits each
+  // object so we can know how often they have been
+  // updated
+  createPayloadFromData: function(data) {
+      let payload = JSON.parse(data);
+      // the time stamp
+      // this will be appended to each
+      // player, so we know exactly
+      // what date each player was last updated on
+      let lastUpdatedOn = payload.lastUpdatedOn;
+      // the player stats array
+      let playerStats = payload.playerStatsTotals;
+      let response = [];
+      for(let i = 0; i < playerStats.length; i++) {
+          response.push({"lastUpdatedOn":lastUpdatedOn, "player":(playerStats[i]).player, "team":(playerStats[i]).team, "stats":(playerStats[i]).stats});
       }
-
-      function traverse(o,func, prop) {
-          // for each property
-          for (var i in o) {
-              // call function and move on
-              func.apply(this,[i,o[i], prop]);
-              if (o[i] !== null && typeof o[i] == "object") {
-                  // go deeper
-                  traverse(o[i],func);
-              }
-          }
-      }
-      for(let prop in properties) {
-        traverse(payload, process, prop);
-      }
-      console.log(response);
+      // create a new player object
       return response;
   }
 };
