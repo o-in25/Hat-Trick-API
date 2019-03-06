@@ -7,6 +7,7 @@ let file = require('fs');
 let db = require('../db');
 let dbService = require('../dbService');
 let ObjectId = require('mongodb').ObjectID;
+let _ = require('lodash');
 // request manager
 let requestManager = require('../../middlewares/requestManager');
 let responseParser = require('../../middlewares/responseParser');
@@ -107,17 +108,19 @@ module.exports.updateTest = function() {
   dbService.update(db.getCollection(), {id:420}, {fal:false});
 };
 
-
+// writes all team ids to a file
 module.exports.getAllTeamIds = function() {
         dbService.find(db.getCollection(), {}, {}).then((data) => {
-            let str = '';
             let blacklist = [];
+            let dataField = [];
             for(let i = 0; i < data.length; i++) {
                 let current = data[i];
                 try {
+                    // don't write them twice
                     if(!blacklist.includes(current.team.id.toString())) {
-                        str += current.team.id.toString() + '\n';
+                        dataField.push("'" + current.team.id.toString() +"'");
                     }
+                    // keep track
                     blacklist.push(current.team.id.toString());
                 } catch(err) {
                     if(blacklist.length < 1) {
@@ -125,25 +128,29 @@ module.exports.getAllTeamIds = function() {
                     }
                 }
             }
-            file.appendFile('./service/service-workers/TeamIDs', str, 'utf8', function(err) {
+            console.log(dataField);
+            file.appendFile('./service/service-workers/ref/TeamIDs.txt', dataField.toString(), 'utf8', function(err) {
                 if(err) {
                     console.log(err);
                 } else {
                     console.log('Successfully wrote...');
                 }
             })
-        }).catch();
+        }).catch((err) => {
+            throw new Error(err);
+        });
 };
 
+// writes all player ids to a file
 module.exports.getAllPlayerIds = function() {
     dbService.find(db.getCollection(), {}, {}).then((data) => {
-        let str = '';
         let blacklist = [];
+        let dataField = [];
         for(let i = 0; i < data.length; i++) {
             let current = data[i];
             try {
                 if(!blacklist.includes(current.player.id.toString())) {
-                    str += current.player.id.toString() + '\n';
+                    dataField.push("'" + current.player.id.toString() +"'");
                 }
                 blacklist.push(current.player.id.toString());
             } catch(err) {
@@ -152,14 +159,17 @@ module.exports.getAllPlayerIds = function() {
                 }
             }
         }
-        file.appendFile('./service/service-workers/PlayerIDs', str, 'utf8', function(err) {
+        console.log(dataField);
+        file.appendFile('./service/service-workers/ref/PlayerIDs.txt', dataField.toString(), 'utf8', function(err) {
             if(err) {
                 console.log(err);
             } else {
                 console.log('Successfully wrote...');
             }
         })
-    }).catch();
+    }).catch((err) => {
+        throw new Error(err);
+    });
 };
 
 module.exports.insertTest = function() {
