@@ -15,6 +15,8 @@ let responseParser = require('./middlewares/responseParser');
 let requestManager = require('./middlewares/requestManager');
 let serviceWorker = require('./service/service-workers/serviceWorker');
 
+// test
+let stats = require('./lib/stats');
 
 //connect to db
 const url = 'mongodb://' +  credentials.mongo.username + ':' + credentials.mongo.password + '@hattrickcluster-shard-00-00-zgcgc.mongodb.net:27017,hattrickcluster-shard-00-01-zgcgc.mongodb.net:27017,hattrickcluster-shard-00-02-zgcgc.mongodb.net:27017/test?ssl=true&replicaSet=HatTrickCluster-shard-0&authSource=admin&retryWrites=true';
@@ -27,7 +29,8 @@ db.init(url).then((config) => {
     //serviceWorker.updateTest();
     //serviceWorker.updateAllPlayers();
     //serviceWorker.getAllPlayerIds();
-    serviceWorker.getAllTeamIds();
+    //serviceWorker.getAllTeamIds();
+    stats.test();
 }).catch((err) => {
     throw new Error(err);
 });
