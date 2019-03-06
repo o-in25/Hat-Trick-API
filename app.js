@@ -30,7 +30,7 @@ db.init(url).then((config) => {
     //serviceWorker.updateAllPlayers();
     //serviceWorker.getAllPlayerIds();
     //serviceWorker.getAllTeamIds();
-    stats.test();
+    //stats.test();
 }).catch((err) => {
     throw new Error(err);
 });
