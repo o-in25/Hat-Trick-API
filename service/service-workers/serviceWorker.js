@@ -115,17 +115,19 @@ module.exports.getAllTeamIds = function() {
             for(let i = 0; i < data.length; i++) {
                 let current = data[i];
                 try {
-                    if(!blacklist.includes(current.team.id)) {
-                        str += current.team.id + '\n';
-                    } else {
-                        blacklist.push(current.team.id);
+                    if(!blacklist.includes(current.team.id.toString())) {
+                        str += current.team.id.toString() + '\n';
                     }
+                    blacklist.push(current.team.id.toString());
+
                 } catch(err) {
-                    console.log('Field is null, skipping over')
+                    if(blacklist.length < 1) {
+                        console.log('Field is null or undefined, skipping over...');
+                    }
                 }
             }
 
-            file.appendFile('./service/service-workers/playerIDs_', str, 'utf8', function(err) {
+            file.appendFile('./service/service-workers/TeamIDs', str, 'utf8', function(err) {
                 if(err) {
                     console.log(err);
                 } else {
@@ -133,6 +135,35 @@ module.exports.getAllTeamIds = function() {
                 }
             })
         }).catch();
+};
+
+module.exports.getAllPlayerIds = function() {
+    dbService.find(db.getCollection(), {}, {}).then((data) => {
+        let str = '';
+        let blacklist = [];
+        for(let i = 0; i < data.length; i++) {
+            let current = data[i];
+            try {
+                if(!blacklist.includes(current.player.id.toString())) {
+                    str += current.player.id.toString() + '\n';
+                }
+                blacklist.push(current.player.id.toString());
+
+            } catch(err) {
+                if(blacklist.length < 1) {
+                    console.log('Field is null or undefined, skipping over...');
+                }
+            }
+        }
+
+        file.appendFile('./service/service-workers/PlayerIDs', str, 'utf8', function(err) {
+            if(err) {
+                console.log(err);
+            } else {
+                console.log('Successfully wrote...');
+            }
+        })
+    }).catch();
 };
 
 module.exports.insertTest = function() {
