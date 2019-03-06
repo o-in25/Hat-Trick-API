@@ -119,14 +119,12 @@ module.exports.getAllTeamIds = function() {
                         str += current.team.id.toString() + '\n';
                     }
                     blacklist.push(current.team.id.toString());
-
                 } catch(err) {
                     if(blacklist.length < 1) {
                         console.log('Field is null or undefined, skipping over...');
                     }
                 }
             }
-
             file.appendFile('./service/service-workers/TeamIDs', str, 'utf8', function(err) {
                 if(err) {
                     console.log(err);
@@ -148,14 +146,12 @@ module.exports.getAllPlayerIds = function() {
                     str += current.player.id.toString() + '\n';
                 }
                 blacklist.push(current.player.id.toString());
-
             } catch(err) {
                 if(blacklist.length < 1) {
                     console.log('Field is null or undefined, skipping over...');
                 }
             }
         }
-
         file.appendFile('./service/service-workers/PlayerIDs', str, 'utf8', function(err) {
             if(err) {
                 console.log(err);
