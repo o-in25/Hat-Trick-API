@@ -25,7 +25,8 @@ db.init(url).then((config) => {
      */
     //serviceWorker.insertTest();
     //serviceWorker.updateTest();
-    serviceWorker.updateAllPlayers();
+    //serviceWorker.updateAllPlayers();
+    serviceWorker.getAllTeamIds();
 }).catch((err) => {
     throw new Error(err);
 });

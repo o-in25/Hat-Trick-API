@@ -15,6 +15,11 @@ module.exports = {
       let playerStats = payload.playerStatsTotals;
       let response = [];
       for(let i = 0; i < playerStats.length; i++) {
+
+          // derive player stats here
+          let individualPlayerStats = (playerStats[i]).stats;
+          // TODO do something with it
+
           response.push({"lastUpdatedOn":lastUpdatedOn, "player":(playerStats[i]).player, "team":(playerStats[i]).team, "stats":(playerStats[i]).stats});
       }
       // create a new player object

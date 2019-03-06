@@ -3,7 +3,7 @@
  * frequently updating the database and making calculations
  */
 
-
+let file = require('fs');
 let db = require('../db');
 let dbService = require('../dbService');
 let ObjectId = require('mongodb').ObjectID;
@@ -107,6 +107,33 @@ module.exports.updateTest = function() {
   dbService.update(db.getCollection(), {id:420}, {fal:false});
 };
 
+
+module.exports.getAllTeamIds = function() {
+        dbService.find(db.getCollection(), {}, {}).then((data) => {
+            let str = '';
+            let blacklist = [];
+            for(let i = 0; i < data.length; i++) {
+                let current = data[i];
+                try {
+                    if(!blacklist.includes(current.team.id)) {
+                        str += current.team.id + '\n';
+                    } else {
+                        blacklist.push(current.team.id);
+                    }
+                } catch(err) {
+                    console.log('Field is null, skipping over')
+                }
+            }
+
+            file.appendFile('./service/service-workers/playerIDs_', str, 'utf8', function(err) {
+                if(err) {
+                    console.log(err);
+                } else {
+                    console.log('Successfully wrote...');
+                }
+            })
+        }).catch();
+};
 
 module.exports.insertTest = function() {
     console.log('Inserting...');
