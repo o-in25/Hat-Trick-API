@@ -43,6 +43,7 @@ function timestamp(data, options) {
 
 // insert all the players
 module.exports.insertAllPlayers = function() {
+
     this.getAllPlayers().then((data) => {
         // connect to db
         let options = {};
