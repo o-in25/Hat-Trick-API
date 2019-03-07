@@ -132,21 +132,15 @@ module.exports.updateAllPlayers = function() {
 };
 
 
-
-
-
-
-
-
-
 /**
- * Testing stuff, might delete later
+ * Get all team ids
+ *
+ * Writes to a text file a comma delimited list of
+ * all team ids. To avoid duplicates, a blacklist is
+ * maintained; if the next id is discovered that is
+ * already in the blacklist, this means its already found
+ * and we can therefore skip it
  */
-module.exports.updateTest = function() {
-  dbService.update(db.getCollection(), {id:420}, {fal:false});
-};
-
-// writes all team ids to a file
 module.exports.getAllTeamIds = function() {
         dbService.find(db.getCollection(), {}, {}).then((data) => {
             let blacklist = [];
@@ -179,8 +173,15 @@ module.exports.getAllTeamIds = function() {
         });
 };
 
-// writes all player ids to a file
-module.exports.getAllPlayerIds = function() {
+/**
+ * Get all player ids
+ *
+ * Writes to a text file a comma delimited list of
+ * all player ids. To avoid duplicates, a blacklist is
+ * maintained; if the next id is discovered that is
+ * already in the blacklist, this means its already found
+ * and we can therefore skip it
+ */module.exports.getAllPlayerIds = function() {
     dbService.find(db.getCollection(), {}, {}).then((data) => {
         let blacklist = [];
         let dataField = [];
@@ -209,17 +210,4 @@ module.exports.getAllPlayerIds = function() {
         throw new Error(err);
     });
 };
-
-
-
-
-module.exports.insertTest = function() {
-    console.log('Inserting...');
-    dbService.insert(db.getCollection(), [mockObj], {}).then((res) => {
-        console.log('Document inserted...')
-    }).catch((err) => {
-
-    });
-};
-
 
