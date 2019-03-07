@@ -78,8 +78,6 @@ module.exports.insertAllPlayers = function() {
  * specifies. Calls the db service update function
  * with the included new desired update object
  */
-
-
 function updatePlayerWithId(id, arr, options) {
     options = {} || options;
     try {
@@ -92,18 +90,25 @@ function updatePlayerWithId(id, arr, options) {
         console.log('An error occurred: ' + e);
     }
 }
-
+// export the module
 module.exports.updatePlayerWithId = updatePlayerWithId;
 
 
-// updates a player from a given player id
-// with the news mysportsfeeds payload response
+/**
+ * Update all players
+ *
+ * Enumerates through the array player ids and
+ * compares each player id at j with the player
+ * id at i in the payload. If j = i, then that means
+ * that the current player id matches the current player,
+ * thus in this case causes that player at j to be repalced
+ * with the player at i
+ */
 module.exports.updateAllPlayers = function() {
     console.log('Starting update...');
     try {
       this.getAllPlayers().then(function(data) {
           let payload = responseParser.payload(data);
-
           let playerIds = references.playerIds;
           for(let j = 0; j < playerIds.length; j++) {
               let currentId = Number(playerIds[j]);
@@ -112,6 +117,7 @@ module.exports.updateAllPlayers = function() {
                   if(current.player.id == currentId) {
                       // match
                       updatePlayerWithId(currentId, payload[i], {});
+                      // done
                       break;
                   }
               }
@@ -123,7 +129,6 @@ module.exports.updateAllPlayers = function() {
   } catch(e) {
       console.log('An error occurred: ' + e);
   }
-
 };
 
 
