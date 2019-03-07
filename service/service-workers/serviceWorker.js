@@ -7,8 +7,6 @@ let file = require('fs');
 let db = require('../db');
 let dbService = require('../dbService');
 let references = require('./ref/ref');
-let ObjectId = require('mongodb').ObjectID;
-let _ = require('lodash');
 // request manager
 let requestManager = require('../../middlewares/requestManager');
 let responseParser = require('../../middlewares/responseParser');
