@@ -6,14 +6,22 @@
 let file = require('fs');
 let db = require('../db');
 let dbService = require('../dbService');
+let references = require('./ref/ref');
 let ObjectId = require('mongodb').ObjectID;
 let _ = require('lodash');
 // request manager
 let requestManager = require('../../middlewares/requestManager');
 let responseParser = require('../../middlewares/responseParser');
 
-// retrieves all players from
-// mysportsfeeds
+
+/**
+ * Get all players
+ *
+ * Makes a call to the mysportsfeeds api to gather
+ * the data specified by the request manager (in
+ * this case, all players) and returns a promise
+ * with the raw data
+ */
 module.exports.getAllPlayers = function() {
     console.log('in the promise');
     return new Promise((resolve, reject) => {
@@ -29,78 +37,102 @@ module.exports.getAllPlayers = function() {
     });
 };
 
-// timestamps the last time the mysportsfeeds
-// payload was updated
-function timestamp(data, options) {
-    console.log(data.lastUpdatedOn);
-    let date = {"LastedUpdated" : data.lastUpdatedOn};
-    dbService.insert(db.getCollection(), [date], options).then((result) => {
-        console.log('Timestamp added');
-    }).catch((err) => {
-        console.log(new Error('Failed to add timestamp ' + err));
-    });
+
+/**
+ * Insert all players
+ *
+ * Inserts all players into the database with the specified
+ * collection that is provided from db module. Will receive
+ * payload, that is, the array of json objects from the
+ * payload function and will insert that data into the db
+ * via the db service insert method
+ */
+module.exports.insertAllPlayers = function() {
+    try {
+        this.getAllPlayers().then((data) => {
+            // get the payload
+            let payload = responseParser.payload(data);
+            // connect to db
+            let options = {};
+            // insert
+            console.log(payload.length);
+            dbService.insert(db.getCollection(), payload, options).then((res) => {
+                console.log('Inserted successfully...');
+            }).catch((err) => {
+                throw new Error(err);
+            });
+        }).catch((data) => {
+            console.log(data);
+            console.log(new Error(data));
+        });
+    } catch(e) {
+        console.log('An error occurred: ' + e);
+    }
+};
+
+/**
+ * Update player with id
+ *
+ * Takes an id of a player and will update that
+ * player with a new object of type array that is
+ * specifies. Calls the db service update function
+ * with the included new desired update object
+ */
+
+
+function updatePlayerWithId(id, arr, options) {
+    options = {} || options;
+    try {
+        dbService.update(db.getCollection(), {"player.id":id}, arr, options).then((result) => {
+            console.log('Successfully updated ' + id);
+        }).catch((err) => {
+            throw new Error(err);
+        });
+    } catch(e) {
+        console.log('An error occurred: ' + e);
+    }
 }
 
-// insert all the players
-module.exports.insertAllPlayers = function() {
-
-    this.getAllPlayers().then((data) => {
-        // connect to db
-        let options = {};
-        let payload = JSON.parse(data);
-        let players = payload.playerStatsTotals;
-        // insert
-        timestamp(payload, options);
-        for(let i = 0; i < players.length; i++) {
-            dbService.insert(db.getCollection(), [players[i]], options).then((res) => {
-            }).catch((err) => {});
-        }
-    }).catch((data) => {
-        console.log(data);
-        console.log(new Error(data));
-    });
-};
+module.exports.updatePlayerWithId = updatePlayerWithId;
 
 
 // updates a player from a given player id
 // with the news mysportsfeeds payload response
 module.exports.updateAllPlayers = function() {
-    this.getAllPlayers().then((data) => {
-        console.log((responseParser.createPayloadFromData(data)[0]));
-        let payload = JSON.parse(data);
-        let options = {};
-        let collection = db.getCollection();
-        // get all the elements in the collection,
-        // since we must get their object ids
-        let playerStats = payload.playerStatsTotals;
-        timestamp(payload, options);
-        dbService.find(collection, {}, options).then((mongoData) => {
-            // the mongo data
-            for(let i = 0; i < mongoData.length; i++)  {
-                if(typeof mongoData[i].id !== "undefined") {
-                    let counter = 0;
-                    let player = playerStats.find((obj, index) => {
-                        // TODO: avoid type coercion
-                        if(mongoData[i].id == obj.player.id) {
-                            counter = index;
-                            return mongoData[i].id == obj.player.id;
-                        }
-                    });
-                    dbService.update(collection, {"_id":ObjectId(mongoData[counter]._id.toString())}, player, options).then((res) => {
-                        console.log('Successfully updated...');
-                    }).catch((err) => {
-                        throw new Error(err);
-                    });
-                }
-            }
-        }).catch((err) => {
-            throw new Error(err);
-        });
-    }).catch((err) => {
-        throw new Error(err);
-    });
+    console.log('Starting update...');
+    try {
+      this.getAllPlayers().then(function(data) {
+          let payload = responseParser.payload(data);
+
+          let playerIds = references.playerIds;
+          for(let j = 0; j < playerIds.length; j++) {
+              let currentId = Number(playerIds[j]);
+              for(let i = 0; i < payload.length; i++) {
+                  let current = payload[i];
+                  if(current.player.id == currentId) {
+                      // match
+                      updatePlayerWithId(currentId, payload[i], {});
+                      break;
+                  }
+              }
+          }
+          console.log('Updating completed...');
+      }).catch(function(err) {
+          console.log(err);
+      })
+  } catch(e) {
+      console.log('An error occurred: ' + e);
+  }
 
 };
+
+
+
+
+
+
+
+
 
 /**
  * Testing stuff, might delete later
@@ -172,6 +204,9 @@ module.exports.getAllPlayerIds = function() {
         throw new Error(err);
     });
 };
+
+
+
 
 module.exports.insertTest = function() {
     console.log('Inserting...');
