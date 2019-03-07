@@ -12,6 +12,9 @@ module.exports.payload = function(data) {
     // what date each player was last updated on
     let lastUpdatedOn = new Date().toDateString();
     // the player stats array
+    /**
+     * @param {{playerStatsTotals:object}} playerStats
+     */
     let playerStats = payload.playerStatsTotals;
     console.log(playerStats.length);
     let response = [];
