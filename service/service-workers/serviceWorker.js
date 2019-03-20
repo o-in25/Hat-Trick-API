@@ -38,21 +38,9 @@ module.exports.getAllPlayers = function() {
 };
 
 
-module.exports.findDuplicates = function() {
+ module.exports.findDuplicates = function() {
     this.getAllPlayers().then((data) => {
         let payload = responseParser.payload(data);
-        let ids = [];
-        let duplicates = 0;
-        console.log(payload);
-        for(let i = 0; i < payload.length; ++i) {
-            let current = payload[i].player.id;
-            if(ids.includes(current)) {
-                duplicates++;
-                console.log(current);
-            }
-            ids.push(current);
-        }
-        console.log(duplicates);
     });
 };
 
