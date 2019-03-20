@@ -63,36 +63,36 @@ function clean(response, payload) {
         // we have duplicate player stats, with
         // conflicting teams - which one is the right one?
         // well, we will find out, muthafucka
-        let teamId;
+        let currentTeam;
         for(let j = 0; j < playerReferences.length; j++) {
             let current = playerReferences[i];
             if(current.id == duplicate) {
                 // found the player reference
-                teamId = current.currentTeam.id;
+                currentTeam = current.currentTeam;
             }
         }
         // proper team found out, time to filter
         let result = response.filter(specification => specification.player.id == duplicate);
-        for(let k = 0; k < result.length; k++) {
+        if(result.length != 0) {
+            let base = result[0];
+            base.currentTeam = currentTeam;
+            for(let k = 0; k < result.length; k++) {
+                // time to aggregate;
+                let currentStats = (result[0]).stats;
+                for(let prop in currentStats) {
+                    if(typeof prop != "object") {
+                        base.stats.gamesPlayed += currentStats.gamesPlayed;
+                    } else {
+                        for(let subProp in currentStats[prop]) {
+                            base.stats[prop][subProp] += subProp;
+                        }
+                    }
+                }
 
+            }
         }
 
-
     }
-
-
-    while(i < index) {
-        let duplicate = duplicates[i];
-        let result = response.filter(specification => specification.player.id == duplicate);
-        // for each element in the found set of duplicates
-        for(let i = 0; i < result.length; i++) {
-            // get the current team by how many games they played
-
-        }
-
-    }
-
-    console.log(duplicates);
 }
 
 
