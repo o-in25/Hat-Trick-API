@@ -63,8 +63,14 @@ function wash(response, payload) {
                 break;
             }
         }
+        // proper team found
+
+        let res = response.filter(temp => temp.player.id == duplicateEntries[i]);
+        if(i < 3) {
+            console.log(res);
+        }
     }
-    // proper team found
+
 
 }
 
