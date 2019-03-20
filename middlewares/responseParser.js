@@ -28,10 +28,10 @@ module.exports.payload = function(data) {
         response.push({"lastUpdatedOn":lastUpdatedOn, "player":(playerStats[i]).player, "team":(playerStats[i]).team, "stats":playerStatsAt});
     }
     // time to clean the response
-
+    let cleanedResponse = clean(response, payload);
 
     // create a new player object
-    return response;
+    return cleanedResponse;
 };
 
 // a helper
@@ -49,28 +49,31 @@ function findDuplicates(response) {
     return duplicates;
 }
 
-// this is not efficient at all, but at this
-// point, i don't really give a fuck
+// another helper
+function findCurrentTeamFromReferences(duplicate, playerReferences) {
+    for(let j = 0; j < playerReferences.length; j++) {
+        if(playerReferences[i] == duplicate) {
+            // found the player reference
+            return (playerReferences[i]).currentTeam;
+        }
+    }
+}
+
+// probably could be done recursively
 function clean(response, payload) {
-    let duplicates = findDuplicates(response);
+    // playerReferences = [{id: 10, ... ,}, {id: 420, ... , }]
     let playerReferences = payload.references.playerReferences;
-    // found the duplicates, time to get
-    // to work
+    let duplicates = findDuplicates(response);
+    // duplicates = [10, 420, 69, ... , ]
     // for each duplicate
     for(let i = 0; i < duplicates.length; i++) {
         let duplicate = duplicates[i];
-        // what team is the right one?
-        // we have duplicate player stats, with
-        // conflicting teams - which one is the right one?
-        // well, we will find out, muthafucka
-        let currentTeam;
-        for(let j = 0; j < playerReferences.length; j++) {
-            let current = playerReferences[i];
-            if(current.id == duplicate) {
-                // found the player reference
-                currentTeam = current.currentTeam;
-            }
-        }
+        // get what team it is?
+        // for example prozingis was on the
+        // knicks, but is now on the the mavs
+        // so get the mavs id
+        let currentTeamId = findCurrentTeamFromReferences(duplicate, playerReferences);
+
         // proper team found out, time to filter
         let result = response.filter(specification => specification.player.id == duplicate);
         if(result.length != 0) {
@@ -84,14 +87,12 @@ function clean(response, payload) {
                         base.stats.gamesPlayed += currentStats.gamesPlayed;
                     } else {
                         for(let subProp in currentStats[prop]) {
-                            base.stats[prop][subProp] += subProp;
+                            (base.stats[prop])[subProp] += subProp;
                         }
                     }
                 }
-
             }
         }
-
     }
 }
 
