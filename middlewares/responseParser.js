@@ -69,7 +69,7 @@ function clean(response, payload) {
     for(let i = 0; i < duplicates.length; i++) {
         let duplicate = duplicates[i];
         // get what team it is?
-        // for example prozingis was on the
+        // for example porzingis was on the
         // knicks, but is now on the the mavs
         // so get the mavs id
         let currentTeamId = findCurrentTeamFromReferences(duplicate, playerReferences);
