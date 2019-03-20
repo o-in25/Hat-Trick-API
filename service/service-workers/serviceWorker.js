@@ -7,6 +7,7 @@ let file = require('fs');
 let db = require('../db');
 let dbService = require('../dbService');
 let references = require('./ref/ref');
+let stats = require('../../lib/stats');
 // request manager
 let requestManager = require('../../middlewares/requestManager');
 // response parser
@@ -33,6 +34,25 @@ module.exports.getAllPlayers = function() {
         } else if(data.playerStatsTotals.length == 0) {
             reject('The Requested Resource Could Not Be Found');
         }
+    });
+};
+
+
+module.exports.findDuplicates = function() {
+    this.getAllPlayers().then((data) => {
+        let payload = responseParser.payload(data);
+        let ids = [];
+        let duplicates = 0;
+        console.log(payload);
+        for(let i = 0; i < payload.length; ++i) {
+            let current = payload[i].player.id;
+            if(ids.includes(current)) {
+                duplicates++;
+                console.log(current);
+            }
+            ids.push(current);
+        }
+        console.log(duplicates);
     });
 };
 
@@ -93,6 +113,22 @@ function updatePlayerWithId(id, arr, options) {
 module.exports.updatePlayerWithId = updatePlayerWithId;
 
 
+
+module.exports.findPlayerWithId = function(id, options, callback) {
+    options = {} || options;
+    try {
+        dbService.find(db.getCollection(), {"player.id":id}, options).then(function(result) {
+             callback(result[0] == "undefined"? [] : result[0]);
+        }).catch(function(err) {
+            throw new Error(err);
+        })
+    } catch(e) {
+        console.log('An error occurred: ' + e);
+    }
+};
+
+
+
 /**
  * Update all players
  *
@@ -108,6 +144,7 @@ module.exports.updateAllPlayers = function() {
     try {
       this.getAllPlayers().then(function(data) {
           let payload = responseParser.payload(data);
+          console.log(data.length);
           let playerIds = references.playerIds;
           for(let j = 0; j < playerIds.length; j++) {
               let currentId = Number(playerIds[j]);
@@ -128,6 +165,14 @@ module.exports.updateAllPlayers = function() {
   } catch(e) {
       console.log('An error occurred: ' + e);
   }
+};
+
+
+module.exports.deriveTeamMinutes = function(playerId) {
+
+    stats.deriveTeamMinutesPlayed(function() {
+        this.findPlayerWithId();
+    });
 };
 
 
