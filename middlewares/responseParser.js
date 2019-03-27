@@ -10,7 +10,7 @@ module.exports.payload = function(data) {
     // this will be appended to each
     // player, so we know exactly
     // what date each player was last updated on
-    let lastUpdatedOn = "Just now";
+    let lastUpdatedOn = "Fal Time";
     // the player stats array
     /**
      * @param {{playerStatsTotals:object}} playerStats

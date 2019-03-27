@@ -27,10 +27,10 @@ db.init(url).then((config) => {
      */
     //serviceWorker.insertTest();
     //serviceWorker.updateTest();
-    //serviceWorker.updateAllPlayers();
+    serviceWorker.updateAllPlayers();
     //serviceWorker.getAllPlayerIds();
     //serviceWorker.getAllTeamIds();
-    serviceWorker.updateAllPlayers();
+    //serviceWorker.updateAllPlayers();
     //serviceWorker.findDuplicates();
     //stats.test();
     //serviceWorker.deriveTeamMinutes();

@@ -102,11 +102,38 @@ module.exports.updatePlayerWithId = updatePlayerWithId;
 
 
 
+function updatePlayer(query, arr, options) {
+    options = {} || options;
+    try {
+        dbService.replaceOne(db.getCollection(), query, arr, options).then((result) => {
+            console.log('Successfully replaced ' + result);
+        }).catch((err) => {
+            throw new Error(err);
+        });
+    } catch(e) {
+        throw new Error(e);
+    }
+}
+
 module.exports.findPlayerWithId = function(id, options, callback) {
     options = {} || options;
     try {
         dbService.find(db.getCollection(), {"player.id":id}, options).then(function(result) {
              callback(result[0] == "undefined"? [] : result[0]);
+        }).catch(function(err) {
+            throw new Error(err);
+        })
+    } catch(e) {
+        console.log('An error occurred: ' + e);
+    }
+};
+
+
+function find_me(query, options, callback) {
+    options = {} || options;
+    try {
+        dbService.find(db.getCollection(), query, options).then(function(result) {
+            callback(result[0] == "undefined"? [] : result[0]);
         }).catch(function(err) {
             throw new Error(err);
         })
@@ -142,11 +169,14 @@ module.exports.updateAllPlayers = function() {
                       if(res.length > 1) {
                           // they played for 2 or more teams
                           // so we need to update all of those
-                          
-                          console.log(true);
+                          for(let k = 0; k < res.length; k++) {
+                              let teamId = res[k].team.id;
+                              let playerId = res[k].player.id;
+                              updatePlayer({$and:[{"player.id":playerId}, {"team.id":teamId}]}, res[k], {});
+                          }
                       } else {
                           // they only played for 1 team
-                          updatePlayerWithId(currentId, payload[i], {multi: true});
+                          updatePlayerWithId(currentId, payload[i], {});
                       }
                       // done
                       break;
