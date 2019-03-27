@@ -33,7 +33,24 @@ module.exports.update = function(collection, query, update, options) {
     });
 };
 
-
+module.exports.updateMany = function(collection, query, update, options) {
+    return new Promise((resolve, reject) => {
+        if(!collection) {
+            reject(new Error('Collection cannot be undefined'));
+        } else if(typeof query !== "object") {
+            reject(new Error('Query must be of type object'));
+        } else {
+            options = options || {};
+            collection.updateMany(query, update, options).toArray(function(err, res) {
+                if(err) {
+                    reject(new Error(err));
+                } else {
+                    resolve(res);
+                }
+            });
+        }
+    });
+};
 
 
 module.exports.find = function(collection, query, options) {

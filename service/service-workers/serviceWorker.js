@@ -94,7 +94,7 @@ function updatePlayerWithId(id, arr, options) {
             throw new Error(err);
         });
     } catch(e) {
-        console.log('An error occurred: ' + e);
+        throw new Error(e);
     }
 }
 // export the module
@@ -132,15 +132,22 @@ module.exports.updateAllPlayers = function() {
     try {
       this.getAllPlayers().then(function(data) {
           let payload = responseParser.payload(data);
-          console.log(data.length);
           let playerIds = references.playerIds;
           for(let j = 0; j < playerIds.length; j++) {
               let currentId = Number(playerIds[j]);
               for(let i = 0; i < payload.length; i++) {
                   let current = payload[i];
                   if(current.player.id == currentId) {
-                      // match
-                      updatePlayerWithId(currentId, payload[i], {});
+                      let res = payload.filter(temp => temp.player.id == currentId);
+                      if(res.length > 1) {
+                          // they played for 2 or more teams
+                          // so we need to update all of those
+                          
+                          console.log(true);
+                      } else {
+                          // they only played for 1 team
+                          updatePlayerWithId(currentId, payload[i], {multi: true});
+                      }
                       // done
                       break;
                   }
