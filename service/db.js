@@ -44,7 +44,7 @@ module.exports.init = function(url) {
             // specify the database
             db = response.db(credentials.mongo.dbs.dbTest);
             // specify the collection
-            collection = db.collection(credentials.mongo.collections.collectionDevelopment);
+            collection = db.collection(credentials.mongo.collections.collectionD);
             let config = {
                 client:client,
                 db:db,
