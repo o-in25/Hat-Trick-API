@@ -5,7 +5,7 @@ let cookieParser = require('cookie-parser');
 let logger = require('morgan');
 // base necessary endpoints
 let indexRouter = require('./routes/index');
-let usersRouter = require('./routes/users');
+let playersRouters = require('./routes/players');
 // db
 let db = require('./service/db');
 let dbService = require('./service/dbService');
@@ -32,7 +32,6 @@ db.init(url).then((config) => {
     //serviceWorker.getAllTeamIds();
     //serviceWorker.updateAllPlayers();
     //serviceWorker.findDuplicates();
-    //stats.test();
     //serviceWorker.deriveTeamMinutes();
     //serviceWorker.insertAllPlayers();
 }).catch((err) => {
@@ -60,7 +59,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // base app endpoints
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
+app.use('/players', playersRouters);
 
 // feed endpoints
 app.use('/api/player-stats/', playerStatsApi);
