@@ -100,8 +100,14 @@ function updatePlayerWithId(id, arr, options) {
 // export the module
 module.exports.updatePlayerWithId = updatePlayerWithId;
 
-
-
+/**
+ * Update player
+ *
+ * Takes a query  and will update that
+ * player with a new object of type array that is
+ * specifies. Calls the db service update function
+ * with the included new desired update object
+ */
 function updatePlayer(query, arr, options) {
     options = {} || options;
     try {
@@ -120,20 +126,6 @@ module.exports.findPlayerWithId = function(id, options, callback) {
     try {
         dbService.find(db.getCollection(), {"player.id":id}, options).then(function(result) {
              callback(result[0] == "undefined"? [] : result[0]);
-        }).catch(function(err) {
-            throw new Error(err);
-        })
-    } catch(e) {
-        console.log('An error occurred: ' + e);
-    }
-};
-
-
-function find_me(query, options, callback) {
-    options = {} || options;
-    try {
-        dbService.find(db.getCollection(), query, options).then(function(result) {
-            callback(result[0] == "undefined"? [] : result[0]);
         }).catch(function(err) {
             throw new Error(err);
         })
