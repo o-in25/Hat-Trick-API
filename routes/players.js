@@ -3,7 +3,10 @@ let router = express.Router();
 
 let RequestManager = require('../middlewares/requestManager');
 
-/* GET users listing. */
+/**
+ * Get all the players from
+ * the payload
+ */
 router.get('/', function(req, res, next) {
 
     function retrieve() {

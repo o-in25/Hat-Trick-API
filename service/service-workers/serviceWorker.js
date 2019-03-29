@@ -150,7 +150,7 @@ module.exports.updateAllPlayers = function() {
     console.log('Starting update...');
     try {
       this.getAllPlayers().then(function(data) {
-          let lastUpdated = new Promise((resolve, reject) => {
+          let pullAll = new Promise((resolve, reject) => {
               dbService.find(db.getCollection(), {}, {}).then((dbResponse) => {
                   resolve(dbResponse);
               }).catch((err) => {
@@ -158,8 +158,7 @@ module.exports.updateAllPlayers = function() {
               });
           });
 
-          
-          lastUpdated.then(function(dbResponse) {
+          pullAll.then(function(dbResponse) {
               let payload = responseParser.payload(data);
               for(let j = 0; j < dbResponse.length; j++) {
                   let currentId = dbResponse[j].player.id;
@@ -186,7 +185,7 @@ module.exports.updateAllPlayers = function() {
               }
               console.log('Updating completed...');
           }).catch(function(err) {
-
+            console.log(err);
           });
 
       }).catch(function(err) {

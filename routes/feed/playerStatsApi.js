@@ -2,90 +2,53 @@ let express = require('express');
 let router = express.Router();
 // used for the request
 let RequestManager = require('../../middlewares/requestManager');
-let dbSercive = require('../../service/dbService');
+// the db
+let dbService = require('../../service/dbService');
+let db = require('../../service/db');
 /* gets the entire body response for each request */
 
 
 
 /*
- * Gets all player stats for all players
+ * Returns all
  */
 router.get('/', function(req, res, next) {
-
-    function retrieve() {
-        console.log('in the promise');
-        return new Promise((resolve, reject) => {
-            // build the request
-            let request = RequestManager.buildRequest('v2.0', 'nba', '2018-2019-regular', 'player_stats_totals', {});
-            // make the request
-            let data = RequestManager.makeRequest(request);
-            if(data) {
-                resolve(data);
-            } else if(!data) {
-                // can't make the request
-                reject({'0': 'The Promise Request Could Not Be Made'})
-            } else if(data.playerStatsTotals.length == 0) {
-                // invalid parameter
-                reject({'1': 'The Requested Resource Could Not Be Found'})
-            }
-        });
-    }
-    // either resolve the request
-    // or reject it
-    retrieve().then((data) => {
-        // send the payload
-        /**
-         * TEST
-         */
-
-
-        db.insert(db.getCollection(), [JSON.parse(data)], {}).then((res) => {
-            console.log('Inserted document successfully...')
-        }).catch((err) => {
-            console.log(err);
-        });
-
-        res.send(data);
+    dbService.find(db.getCollection(), {}, {}).then((dbResponse) => {
+        res.send(dbResponse);
     }).catch((err) => {
-        // send an error
-        res.send(err);
+        console.log(err);
     });
 });
+
 
 /*
  * Gets all player stats for player
  * with a given name
  */
-router.get('/player/:name', function(req, res, next) {
-
-    function retrieve() {
-        console.log('in the promise');
-        return new Promise((resolve, reject) => {
-            // build the request
-            let request = RequestManager.buildRequest('v2.0', 'nba', '2018-2019-regular', 'player_stats_totals', {player: req.params.name});
-            // make the request
-            let data = RequestManager.makeRequest(request);
-            if(data) {
-                resolve(data);
-            } else if(!data) {
-                // can't make the request
-                reject({'0': 'The Promise Request Could Not Be Made'})
-            } else if(data.playerStatsTotals.length == 0) {
-                // invalid parameter
-                reject({'1': 'The Requested Resource Could Not Be Found'})
-            }
-        });
-    }
-    // either resolve the request
-    // or reject it
-    retrieve().then((data) => {
-        // send the payload
-        res.send(data);
+router.get('/player/:id', function(req, res, next) {
+    dbService.find(db.getCollection(), {"player.id":Number(req.params.id)}, {}).then((dbResponse) => {
+        res.send(dbResponse);
     }).catch((err) => {
-        // send an error
-        res.send(err);
+        console.log(err);
     });
 });
+
+
+/*
+ * Gets all player stats for player
+ * with a given name
+ */
+router.get('/player/:first/:last', function(req, res, next) {
+    dbService.find(db.getCollection(), {"player.id":req.params.id}).then((dbResponse) => {
+        res.send(dbResponse);
+    }).catch((err) => {
+        console.log(err);
+    });
+});
+
+
+
+
 
 /*
  * Gets all player stats for player
