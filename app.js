@@ -1,22 +1,32 @@
+/**
+ * Express middleware
+ */
 let express = require('express');
 let path = require('path');
 let cookieParser = require('cookie-parser');
-
 let logger = require('morgan');
-// base necessary endpoints
+
+/**
+ * Database middleware
+ */
+let db = require('./service/db');
+
+/**
+ * Authentication credentials
+ */
+let credentials = require('./credentials');
+
+/**
+ * api endpoints
+ */
 let indexRouter = require('./routes/index');
 let playersRouters = require('./routes/players');
-// db
-let db = require('./service/db');
-let dbService = require('./service/dbService');
-// credentials
-let credentials = require('./credentials');
-let responseParser = require('./middlewares/responseParser');
-let requestManager = require('./middlewares/requestManager');
-let serviceWorker = require('./service/service-workers/serviceWorker');
+let teamStatsApi = require('./routes/feed/teamStatsApi');
+let playerStatsApi = require('./routes/feed/playerStatsApi');
 
-// test
-let stats = require('./lib/stats');
+
+// service worker - does some useful shit
+let serviceWorker = require('./service/service-workers/serviceWorker');
 
 //connect to db
 const url = 'mongodb://' +  credentials.mongo.username + ':' + credentials.mongo.password + '@hattrickcluster-shard-00-00-zgcgc.mongodb.net:27017,hattrickcluster-shard-00-01-zgcgc.mongodb.net:27017,hattrickcluster-shard-00-02-zgcgc.mongodb.net:27017/test?ssl=true&replicaSet=HatTrickCluster-shard-0&authSource=admin&retryWrites=true';
@@ -38,10 +48,6 @@ db.init(url).then((config) => {
     throw new Error(err);
 });
 
-
-
-// newly added endpoints
-let playerStatsApi = require('./routes/feed/playerStatsApi');
 // create the express object
 let app = express();
 
@@ -49,18 +55,15 @@ let app = express();
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-
-
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-
 
 
 // base app endpoints
 app.use('/', indexRouter);
 app.use('/players', playersRouters);
-
 // feed endpoints
 app.use('/api/player-stats/', playerStatsApi);
+app.use('/api/team-stats/', teamStatsApi);
 
 module.exports = app;

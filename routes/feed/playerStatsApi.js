@@ -51,7 +51,7 @@ router.get('/player/points/:ptsPerGame', function(req, res, next) {
 
 /*
  * Gets all player stats for player
- * for a given points per game
+ * for a given points per game >= n
  */
 router.get('/player/points/gte/:ptsPerGame', function(req, res, next) {
     /**
