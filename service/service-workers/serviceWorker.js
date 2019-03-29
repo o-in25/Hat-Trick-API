@@ -150,32 +150,45 @@ module.exports.updateAllPlayers = function() {
     console.log('Starting update...');
     try {
       this.getAllPlayers().then(function(data) {
-          let payload = responseParser.payload(data);
-          let playerIds = references.playerIds;
-          for(let j = 0; j < playerIds.length; j++) {
-              let currentId = Number(playerIds[j]);
-              for(let i = 0; i < payload.length; i++) {
-                  let current = payload[i];
-                  if(current.player.id == currentId) {
-                      let res = payload.filter(temp => temp.player.id == currentId);
-                      if(res.length > 1) {
-                          // they played for 2 or more teams
-                          // so we need to update all of those
-                          for(let k = 0; k < res.length; k++) {
-                              let teamId = res[k].team.id;
-                              let playerId = res[k].player.id;
-                              updatePlayer({$and:[{"player.id":playerId}, {"team.id":teamId}]}, res[k], {});
+          let lastUpdated = new Promise((resolve, reject) => {
+              dbService.find(db.getCollection(), {}, {}).then((dbResponse) => {
+                  resolve(dbResponse);
+              }).catch((err) => {
+                  reject(err);
+              });
+          });
+
+          
+          lastUpdated.then(function(dbResponse) {
+              let payload = responseParser.payload(data);
+              for(let j = 0; j < dbResponse.length; j++) {
+                  let currentId = dbResponse[j].player.id;
+                  for(let i = 0; i < payload.length; i++) {
+                      let current = payload[i];
+                      if(current.player.id == currentId) {
+                          let res = payload.filter(temp => temp.player.id == currentId);
+                          if(res.length > 1) {
+                              // they played for 2 or more teams
+                              // so we need to update all of those
+                              for(let k = 0; k < res.length; k++) {
+                                  let teamId = res[k].team.id;
+                                  let playerId = res[k].player.id;
+                                  updatePlayer({$and:[{"player.id":playerId}, {"team.id":teamId}]}, res[k], {});
+                              }
+                          } else {
+                              // they only played for 1 team
+                              updatePlayerWithId(currentId, payload[i], {});
                           }
-                      } else {
-                          // they only played for 1 team
-                          updatePlayerWithId(currentId, payload[i], {});
+                          // done
+                          break;
                       }
-                      // done
-                      break;
                   }
               }
-          }
-          console.log('Updating completed...');
+              console.log('Updating completed...');
+          }).catch(function(err) {
+
+          });
+
       }).catch(function(err) {
           console.log(err);
       })

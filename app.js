@@ -30,7 +30,7 @@ db.init(url).then((config) => {
     //serviceWorker.updateAllPlayers();
     //serviceWorker.getAllPlayerIds();
     //serviceWorker.getAllTeamIds();
-    //serviceWorker.updateAllPlayers();
+    serviceWorker.updateAllPlayers();
     //serviceWorker.findDuplicates();
     //serviceWorker.deriveTeamMinutes();
     //serviceWorker.insertAllPlayers();
@@ -42,7 +42,6 @@ db.init(url).then((config) => {
 
 // newly added endpoints
 let playerStatsApi = require('./routes/feed/playerStatsApi');
-let playerNumericalStatsApi = require('./routes/feed/playerNumericalStatsApi');
 // create the express object
 let app = express();
 
@@ -63,6 +62,5 @@ app.use('/players', playersRouters);
 
 // feed endpoints
 app.use('/api/player-stats/', playerStatsApi);
-app.use('/api/player-stats/numerical/', playerNumericalStatsApi);
 
 module.exports = app;
