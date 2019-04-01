@@ -164,6 +164,7 @@ module.exports.updateAllPlayers = function() {
                   let currentId = dbResponse[j].player.id;
                   for(let i = 0; i < payload.length; i++) {
                       let current = payload[i];
+
                       if(current.player.id == currentId) {
                           let res = payload.filter(temp => temp.player.id == currentId);
                           if(res.length > 1) {
