@@ -1,4 +1,5 @@
 let stats = require('./../lib/stats');
+let ratigs = require('./../lib/ratings');
 let _ = require('lodash');
 
 // takes the raw data from the stream and edits each
@@ -39,4 +40,5 @@ function addDerivedStats(playerStatsAt) {
     // will be called advanced whose type is object
     // ex: advanced: { efG: ...}, etc...
     playerStatsAt['advanced'] = stats.deriveAdvancedStats(playerStatsAt);
+    playerStatsAt['ratings'] = ratigs.generate(playerStatsAt)
 }
