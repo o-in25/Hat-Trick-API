@@ -93,7 +93,7 @@ module.exports.find = function(collection, query, options) {
 };
 
 
-module.exports.findTest = function(collection, query, options) {
+module.exports.wildcardSearch = function(collection, query, options) {
     return new Promise((resolve, reject) => {
         if(!collection) {
             reject(new Error('Collection cannot be undefined'));
@@ -110,7 +110,6 @@ module.exports.findTest = function(collection, query, options) {
 };
 
 
-
 module.exports.replaceOne = function(collection, query, update, options) {
     return new Promise((resolve, reject) => {
         if(!collection) {
@@ -122,6 +121,10 @@ module.exports.replaceOne = function(collection, query, update, options) {
     });
 };
 
+module.exports.indexCollection = function(collection) {
+    collection.createIndex({"$**":"text"});
+
+};
 
 
 // this probably does not work

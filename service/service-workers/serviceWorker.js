@@ -38,12 +38,6 @@ module.exports.getAllPlayers = function() {
 };
 
 
- module.exports.findDuplicates = function() {
-    this.getAllPlayers().then((data) => {
-        let payload = responseParser.payload(data);
-    });
-};
-
 
 /**
  * Insert all players
@@ -100,6 +94,27 @@ function updatePlayerWithId(id, arr, options) {
 // export the module
 module.exports.updatePlayerWithId = updatePlayerWithId;
 
+
+/**
+ * find player with id
+ *
+ * Takes an id of a player and will find that
+ * player in the collection
+ */
+module.exports.findPlayerWithId = function(id, options, callback) {
+    options = {} || options;
+    try {
+        dbService.find(db.getCollection(), {"player.id":id}, options).then(function(result) {
+            callback(result[0] == "undefined"? [] : result[0]);
+        }).catch(function(err) {
+            throw new Error(err);
+        })
+    } catch(e) {
+        console.log('An error occurred: ' + e);
+    }
+};
+
+
 /**
  * Update player
  *
@@ -120,20 +135,6 @@ function updatePlayer(query, arr, options) {
         throw new Error(e);
     }
 }
-
-module.exports.findPlayerWithId = function(id, options, callback) {
-    options = {} || options;
-    try {
-        dbService.find(db.getCollection(), {"player.id":id}, options).then(function(result) {
-             callback(result[0] == "undefined"? [] : result[0]);
-        }).catch(function(err) {
-            throw new Error(err);
-        })
-    } catch(e) {
-        console.log('An error occurred: ' + e);
-    }
-};
-
 
 
 /**
@@ -157,7 +158,6 @@ module.exports.updateAllPlayers = function() {
                   reject(err);
               });
           });
-
           pullAll.then(function(dbResponse) {
               let payload = responseParser.payload(data);
               for(let j = 0; j < dbResponse.length; j++) {
@@ -198,18 +198,20 @@ module.exports.updateAllPlayers = function() {
 };
 
 
-module.exports.testMe = function(query, options, callback) {
-    dbService.findTest(db.getCollection(), query, options).then(function (data) {
+/**
+ * Wild card search
+ *
+ * Will query the db's indices to find
+ * the specified string that the
+ * user will search for and passes the array
+ * of search results into a callback
+ */
+module.exports.wildcard = function(query, options, callback) {
+    dbService.wildcardSearch({$text:{$search:query}}, options, function(data) {
         callback(data);
     });
 };
 
-
-module.exports.deriveTeamMinutes = function(playerId) {
-    stats.deriveTeamMinutesPlayed(function() {
-        this.findPlayerWithId();
-    });
-};
 
 
 /**************************************************************
