@@ -98,7 +98,7 @@ module.exports.wildcardSearch = function(collection, query, options) {
         if(!collection) {
             reject(new Error('Collection cannot be undefined'));
         } else {
-            collection.find(query, options).toArray(function(err, res) {
+            collection.find({$text:{$search:query}}, options).toArray(function(err, res) {
                 if(err) {
                     reject(new Error(err));
                 } else {

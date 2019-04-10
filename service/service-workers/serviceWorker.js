@@ -206,10 +206,10 @@ module.exports.updateAllPlayers = function() {
  * user will search for and passes the array
  * of search results into a callback
  */
-module.exports.wildcard = function(query, options, callback) {
-    dbService.wildcardSearch({$text:{$search:query}}, options, function(data) {
+module.exports.wildcard = function(queryString, options, callback) {
+    dbService.wildcardSearch(db.getCollection(), queryString, options).then(function(data) {
         callback(data);
-    });
+    })
 };
 
 

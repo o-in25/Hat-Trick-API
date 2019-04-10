@@ -27,7 +27,7 @@ let playerStatsApi = require('./routes/feed/playerStatsApi');
 
 // service worker - does some useful shit
 let serviceWorker = require('./service/service-workers/serviceWorker');
-
+let dbService = require('./service/dbService');
 //connect to db
 const url = 'mongodb://' +  credentials.mongo.username + ':' + credentials.mongo.password + '@hattrickcluster-shard-00-00-zgcgc.mongodb.net:27017,hattrickcluster-shard-00-01-zgcgc.mongodb.net:27017,hattrickcluster-shard-00-02-zgcgc.mongodb.net:27017/test?ssl=true&replicaSet=HatTrickCluster-shard-0&authSource=admin&retryWrites=true';
 db.init(url).then((config) => {
@@ -44,8 +44,8 @@ db.init(url).then((config) => {
     //serviceWorker.findDuplicates();
     //serviceWorker.deriveTeamMinutes();
     //serviceWorker.insertAllPlayers();
-    config.collection.createIndex({"$**":"text"});
-    serviceWorker.testMe({$text:{$search:"giannis"}}, {}, function(data) {
+    dbService.indexCollection(config.collection);
+    serviceWorker.wildcard("LeBron", {}, function(data) {
         console.log(data);
     });
 }).catch((err) => {
