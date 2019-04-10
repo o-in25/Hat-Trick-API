@@ -21,8 +21,9 @@ module.exports.payload = function(data) {
     for(let i = 0; i < playerStats.length; i++) {
 
         let playerStatsAt = (playerStats[i]).stats;
+        let playerPlayerAt = (playerStats[i]).player;
         // TODO & NOTE WELL! derived is passed in as a reference
-        addDerivedStats(playerStatsAt);
+        addDerivedStats(playerStatsAt, playerPlayerAt);
         // derive player stats here
         response.push({"lastUpdatedOn":lastUpdatedOn, "player":(playerStats[i]).player, "team":(playerStats[i]).team, "stats":playerStatsAt});
     }
@@ -35,10 +36,10 @@ module.exports.payload = function(data) {
 };
 
 
-function addDerivedStats(playerStatsAt) {
+function addDerivedStats(playerStatsAt, playerPlayerAt) {
     // add a new property to the object which
     // will be called advanced whose type is object
     // ex: advanced: { efG: ...}, etc...
     playerStatsAt['advanced'] = stats.deriveAdvancedStats(playerStatsAt);
-    playerStatsAt['ratings'] = ratigs.generate(playerStatsAt)
+    playerStatsAt['ratings'] = ratigs.generate(playerStatsAt, playerPlayerAt)
 }
