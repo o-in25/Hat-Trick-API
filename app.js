@@ -23,7 +23,7 @@ let indexRouter = require('./routes/index');
 let playersRouters = require('./routes/players');
 let teamStatsApi = require('./routes/feed/teamStatsApi');
 let playerStatsApi = require('./routes/feed/playerStatsApi');
-
+let serviceWorkerApi = require('./routes/serviceWorkerApi');
 
 // service worker - does some useful shit
 let serviceWorker = require('./service/service-workers/serviceWorker');
@@ -69,5 +69,7 @@ app.use('/players', playersRouters);
 // feed endpoints
 app.use('/api/player-stats/', playerStatsApi);
 app.use('/api/team-stats/', teamStatsApi);
+// service worker
+app.use('api/service-worker/', serviceWorkerApi);
 
 module.exports = app;
