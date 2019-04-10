@@ -44,10 +44,12 @@ db.init(url).then((config) => {
     //serviceWorker.findDuplicates();
     //serviceWorker.deriveTeamMinutes();
     //serviceWorker.insertAllPlayers();
-    dbService.indexCollection(config.collection);
-    serviceWorker.wildcard("LeBron", {}, function(data) {
-        console.log(data);
-    });
+    //dbService.indexCollection(config.collection);
+    /*
+        serviceWorker.wildcard("LeBron", {}, function(data) {
+            console.log(data);
+        });
+     */
 }).catch((err) => {
     throw new Error(err);
 });
@@ -70,6 +72,6 @@ app.use('/players', playersRouters);
 app.use('/api/player-stats/', playerStatsApi);
 app.use('/api/team-stats/', teamStatsApi);
 // service worker
-app.use('api/service-worker/', serviceWorkerApi);
+app.use('/api/service-worker/', serviceWorkerApi);
 
 module.exports = app;
