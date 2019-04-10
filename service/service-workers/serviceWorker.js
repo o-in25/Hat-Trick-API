@@ -198,8 +198,14 @@ module.exports.updateAllPlayers = function() {
 };
 
 
-module.exports.deriveTeamMinutes = function(playerId) {
+module.exports.testMe = function(query, options, callback) {
+    dbService.findTest(db.getCollection(), query, options).then(function (data) {
+        callback(data);
+    });
+};
 
+
+module.exports.deriveTeamMinutes = function(playerId) {
     stats.deriveTeamMinutesPlayed(function() {
         this.findPlayerWithId();
     });

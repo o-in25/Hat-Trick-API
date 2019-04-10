@@ -40,10 +40,14 @@ db.init(url).then((config) => {
     //serviceWorker.updateAllPlayers();
     //serviceWorker.getAllPlayerIds();
     //serviceWorker.getAllTeamIds();
-    serviceWorker.updateAllPlayers();
+    //serviceWorker.updateAllPlayers();
     //serviceWorker.findDuplicates();
     //serviceWorker.deriveTeamMinutes();
     //serviceWorker.insertAllPlayers();
+    config.collection.createIndex({"$**":"text"});
+    serviceWorker.testMe({$text:{$search:"giannis"}}, {}, function(data) {
+        console.log(data);
+    });
 }).catch((err) => {
     throw new Error(err);
 });

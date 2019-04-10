@@ -92,6 +92,25 @@ module.exports.find = function(collection, query, options) {
     });
 };
 
+
+module.exports.findTest = function(collection, query, options) {
+    return new Promise((resolve, reject) => {
+        if(!collection) {
+            reject(new Error('Collection cannot be undefined'));
+        } else {
+            collection.find(query, options).toArray(function(err, res) {
+                if(err) {
+                    reject(new Error(err));
+                } else {
+                    resolve(res);
+                }
+            });
+        }
+    });
+};
+
+
+
 module.exports.replaceOne = function(collection, query, update, options) {
     return new Promise((resolve, reject) => {
         if(!collection) {
