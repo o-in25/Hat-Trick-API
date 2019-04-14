@@ -12,7 +12,7 @@ let stats = require('../../lib/stats');
 let requestManager = require('../../middlewares/requestManager');
 // response parser
 let responseParser = require('../../middlewares/responseParser');
-
+let credentials = require('../../credentials');
 
 /**
  * Get all players
@@ -37,6 +37,50 @@ module.exports.getAllPlayers = function() {
     });
 };
 
+/**
+ * Get all players
+ *
+ * Makes a call to the mysportsfeeds api to gather
+ * the data specified by the request manager (in
+ * this case, all players) and returns a promise
+ * with the raw data
+ */
+module.exports.getAllPlayerProfiles = function() {
+    console.log('in the promise');
+    return new Promise((resolve, reject) => {
+        let request = requestManager.buildRequest('v2.0', 'nba', '', 'players', {});
+        let data = requestManager.makeRequest(request);
+        if(data) {
+            resolve(data);
+        } else if(!data) {
+            reject('The Promise Request Could Not Be Made');
+        } else if(data.playerStatsTotals.length == 0) {
+            reject('The Requested Resource Could Not Be Found');
+        }
+    });
+};
+
+
+module.exports.insertAllPlayerProfiles = function() {
+    try {
+        this.getAllPlayerProfiles().then((data) => {
+        let payload = responseParser.payload(data, "players");
+        let options = {};
+        // change the collection
+        // for this operation
+        dbService.insert(db.collection(credentials.mongo.collections.playerProfiles), payload, options).then((res) => {
+            console.log('Inserted successfully...');
+            // change the collection back
+        }).catch((err) => {
+            throw new Error(err);
+        });
+      }).catch((err) => {
+          throw new Error(err);
+      });
+  } catch (e) {
+      console.log('An error occurred: ' + e);
+  }
+};
 
 
 /**
@@ -52,12 +96,11 @@ module.exports.insertAllPlayers = function() {
     try {
         this.getAllPlayers().then((data) => {
             // get the payload
-            let payload = responseParser.payload(data);
+            let payload = responseParser.payload(data, "playerStats");
             // connect to db
             let options = {};
             // insert
-            console.log(payload.length);
-            dbService.insert(db.getCollection(), payload, options).then((res) => {
+            dbService.insert(db.collection(credentials.mongo.collections.playerStats), payload, options).then((res) => {
                 console.log('Inserted successfully...');
             }).catch((err) => {
                 throw new Error(err);
@@ -82,7 +125,7 @@ module.exports.insertAllPlayers = function() {
 function updatePlayerWithId(id, arr, options) {
     options = {} || options;
     try {
-        dbService.update(db.getCollection(), {"player.id":id}, arr, options).then((result) => {
+        dbService.update(db.collection(credentials.mongo.collections.playerStats), {"player.id":id}, arr, options).then((result) => {
             console.log('Successfully updated ' + id);
         }).catch((err) => {
             throw new Error(err);
@@ -104,7 +147,7 @@ module.exports.updatePlayerWithId = updatePlayerWithId;
 module.exports.findPlayerWithId = function(id, options, callback) {
     options = {} || options;
     try {
-        dbService.find(db.getCollection(), {"player.id":id}, options).then(function(result) {
+        dbService.find(db.collection(credentials.mongo.collections.playerStats), {"player.id":id}, options).then(function(result) {
             callback(result[0] == "undefined"? [] : result[0]);
         }).catch(function(err) {
             throw new Error(err);
@@ -126,7 +169,7 @@ module.exports.findPlayerWithId = function(id, options, callback) {
 function updatePlayer(query, arr, options) {
     options = {} || options;
     try {
-        dbService.replaceOne(db.getCollection(), query, arr, options).then((result) => {
+        dbService.replaceOne(db.collection(credentials.mongo.collections.playerStats), query, arr, options).then((result) => {
             console.log('Successfully replaced ' + result);
         }).catch((err) => {
             throw new Error(err);
@@ -152,14 +195,14 @@ module.exports.updateAllPlayers = function() {
     try {
       this.getAllPlayers().then(function(data) {
           let pullAll = new Promise((resolve, reject) => {
-              dbService.find(db.getCollection(), {}, {}).then((dbResponse) => {
+              dbService.find(db.collection(credentials.mongo.collections.playerStats), {}, {}).then((dbResponse) => {
                   resolve(dbResponse);
               }).catch((err) => {
                   reject(err);
               });
           });
           pullAll.then(function(dbResponse) {
-              let payload = responseParser.payload(data);
+              let payload = responseParser.payload(data, "playerStats");
               for(let j = 0; j < dbResponse.length; j++) {
                   let currentId = dbResponse[j].player.id;
                   for(let i = 0; i < payload.length; i++) {
@@ -230,7 +273,7 @@ module.exports.wildcard = function(queryString, options, callback) {
  * and we can therefore skip it
  */
 module.exports.getAllTeamIds = function() {
-        dbService.find(db.getCollection(), {}, {}).then((data) => {
+        dbService.find(db.collection(credentials.mongo.collections.playerStats), {}, {}).then((data) => {
             let blacklist = [];
             let dataField = [];
             for(let i = 0; i < data.length; i++) {

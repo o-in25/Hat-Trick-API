@@ -37,20 +37,23 @@ db.init(url).then((config) => {
      */
     //serviceWorker.insertTest();
     //serviceWorker.updateTest();
-    //serviceWorker.updateAllPlayers();
+    //serviceWorker.insertAllPlayers();
     //serviceWorker.getAllPlayerIds();
     //serviceWorker.getAllTeamIds();
     //serviceWorker.updateAllPlayers();
     //serviceWorker.findDuplicates();
     //serviceWorker.deriveTeamMinutes();
     //serviceWorker.insertAllPlayers();
-    //dbService.indexCollection(config.collection);
+    dbService.indexCollection(config.collection);
     /*
         serviceWorker.wildcard("LeBron", {}, function(data) {
             console.log(data);
         });
      */
+    //serviceWorker.insertAllPlayerProfiles();
 }).catch((err) => {
+
+
     throw new Error(err);
 });
 

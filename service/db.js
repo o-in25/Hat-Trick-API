@@ -44,7 +44,8 @@ module.exports.init = function(url) {
             // specify the database
             db = response.db(credentials.mongo.dbs.dbTest);
             // specify the collection
-            collection = db.collection(credentials.mongo.collections.collectionD);
+            // by default it will be player stats
+            collection = db.collection(credentials.mongo.collections.playerStats);
             let config = {
                 client:client,
                 db:db,
@@ -59,10 +60,15 @@ module.exports.init = function(url) {
     });
 };
 
+module.exports.collection = function(name) {
+    return this.getDb().collection(name);
+};
+
 module.exports.getDb = () => {
     return db;
 };
 
+// returns the current collection
 module.exports.getCollection = () => {
     return collection;
 };
