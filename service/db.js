@@ -41,7 +41,7 @@ module.exports.init = function(url) {
         MongoClient.connect(url, options).then((response) => {
             console.log('Working...');
             client = response;
-            // specify the database
+            // specify the database]
             db = response.db(credentials.mongo.dbs.dbTest);
             // specify the collection
             // by default it will be player stats
@@ -60,18 +60,22 @@ module.exports.init = function(url) {
     });
 };
 
+
 module.exports.collection = function(name) {
-    return this.getDb().collection(name);
+    return (this.getDb()).collection(name);
 };
+
 
 module.exports.getDb = () => {
     return db;
 };
 
+
 // returns the current collection
 module.exports.getCollection = () => {
     return collection;
 };
+
 
 module.exports.getClient = () => {
     return client;

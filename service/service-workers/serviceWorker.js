@@ -250,7 +250,7 @@ module.exports.updateAllPlayers = function() {
  * of search results into a callback
  */
 module.exports.wildcard = function(queryString, options, callback) {
-    dbService.wildcardSearch(db.getCollection(), queryString, options).then(function(data) {
+    dbService.wildcardSearch(db.collection(credentials.mongo.collections.playerStats), queryString, options).then(function(data) {
         callback(data);
     })
 };
@@ -313,7 +313,7 @@ module.exports.getAllTeamIds = function() {
  * already in the blacklist, this means its already found
  * and we can therefore skip it
  */module.exports.getAllPlayerIds = function() {
-    dbService.find(db.getCollection(), {}, {}).then((data) => {
+    dbService.find(db.collection(credentials.mongo.collections.playerStats), {}, {}).then((data) => {
         let blacklist = [];
         let dataField = [];
         for(let i = 0; i < data.length; i++) {

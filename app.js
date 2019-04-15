@@ -40,11 +40,11 @@ db.init(url).then((config) => {
     //serviceWorker.insertAllPlayers();
     //serviceWorker.getAllPlayerIds();
     //serviceWorker.getAllTeamIds();
-    //serviceWorker.updateAllPlayers();
+    serviceWorker.updateAllPlayers();
     //serviceWorker.findDuplicates();
     //serviceWorker.deriveTeamMinutes();
     //serviceWorker.insertAllPlayers();
-    dbService.indexCollection(config.collection);
+    //dbService.indexCollection(config.collection);
     /*
         serviceWorker.wildcard("LeBron", {}, function(data) {
             console.log(data);

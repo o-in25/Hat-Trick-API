@@ -10,7 +10,7 @@ let RequestManager = require('../middlewares/requestManager');
 router.get('/', function(req, res, next) {
 
     function retrieve() {
-        console.log('in the promise');
+        //console.log('in the promise');
         return new Promise((resolve, reject) => {
             let request = RequestManager.buildRequest('v2.0', 'nba', '2018-2019-regular', 'player_stats_totals', {});
             let data = RequestManager.makeRequest(request);

@@ -94,7 +94,6 @@ module.exports.find = function(collection, query, options) {
 
 
 module.exports.wildcardSearch = function(collection, query, options) {
-    console.log(query);
     return new Promise((resolve, reject) => {
         if(!collection) {
             reject(new Error('Collection cannot be undefined'));

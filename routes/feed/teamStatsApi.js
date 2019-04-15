@@ -14,7 +14,7 @@ let db = require('../../service/db');
  * players
  */
 router.get('/', function(req, res, next) {
-    dbService.find(db.getCollection(), {}, {}).then((dbResponse) => {
+    dbService.find(db.collection(credentials.mongo.collections.playerStats), {}, {}).then((dbResponse) => {
         res.send(dbResponse);
     }).catch((err) => {
         console.log(err);
@@ -27,7 +27,7 @@ router.get('/', function(req, res, next) {
  * with a given id
  */
 router.get('/team/:id', function(req, res, next) {
-    dbService.find(db.getCollection(), {"player.id":Number(req.params.id)}, {}).then((dbResponse) => {
+    dbService.find(db.collection(credentials.mongo.collections.playerStats), {"player.id":Number(req.params.id)}, {}).then((dbResponse) => {
         res.send(dbResponse);
     }).catch((err) => {
         console.log(err);

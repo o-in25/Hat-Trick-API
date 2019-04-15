@@ -1,6 +1,6 @@
 let stats = require('./../lib/stats');
 let ratings = require('./../lib/ratings');
-
+let rankings = require('./../lib/rankings');
 // takes the raw data from the stream and edits each
 // object so we can know how often they have been
 // updated
@@ -54,5 +54,6 @@ function addDerivedStats(playerStatsAt, playerPlayerAt) {
     // will be called advanced whose type is object
     // ex: advanced: { efG: ...}, etc...
     playerStatsAt['advanced'] = stats.deriveAdvancedStats(playerStatsAt);
-    playerStatsAt['ratings'] = ratings.generate(playerStatsAt, playerPlayerAt)
+    playerStatsAt['ratings'] = ratings.generate(playerStatsAt, playerPlayerAt);
+    playerPlayerAt['rankings'] = rankings;
 }
