@@ -129,7 +129,13 @@ module.exports.indexCollection = function(collection) {
 
 // this probably does not work
 module.exports.aggregate = function(collection, options, aggregation, callback) {
-    collection.aggregate(collection, options, callback);
+    return collection.aggregate(aggregation, options).toArray(function(err, res) {
+        if(err) {
+            console.log(err);
+        } else {
+            callback(res);
+        }
+    });
 };
 
 module.exports.distinct = function(collection, key, query, options) {

@@ -39,11 +39,24 @@ module.exports.getAllPlayers = function() {
 };
 
 /**
- * Get all team players
- *
- * Work in progress
+ * This is a test - and it most definitely will
+ * not work
  */
-module.exports.getAllTeamPlayers = function() {
+module.exports.join = function() {
+    dbService.aggregate(db.collection(credentials.mongo.collections.teamStats), {}, {
+        $lookup: {
+            from: credentials.mongo.collections.playerStats,
+            localField: 'team.id',
+            foreignField: 'player.currentTeam.id',
+            as: "test"
+        }
+    }, function(data) {
+        dbService.insert(db.collection(credentials.mongo.collections.teamRosters), data, {}).then((res) => {
+            console.log('Inserted successfully...');
+        }).catch((err) => {
+            throw new Error(err);
+        });
+    });
 
 };
 
@@ -60,31 +73,6 @@ module.exports.getAllSeasonalTeamStats = function() {
         }
     });
 };
-
-
-module.exports.insertAllSeasonalTeamStats = function() {
-    try {
-        this.getAllSeasonalTeamStats().then((data) => {
-            // get the payload
-            let payload = responseParser.payload(data, "teamStats");
-            // connect to db
-            let options = {};
-            // insert
-            dbService.insert(db.collection(credentials.mongo.collections.teamStats), payload, options).then((res) => {
-                console.log('Inserted successfully...');
-            }).catch((err) => {
-                throw new Error(err);
-            });
-        }).catch((data) => {
-            console.log(data);
-            console.log(new Error(data));
-        });
-    } catch(e) {
-        console.log('An error occurred: ' + e);
-    }
-};
-
-
 
 
 /**
@@ -111,6 +99,46 @@ module.exports.getAllPlayerProfiles = function() {
 };
 
 
+/**
+ * Insert all team stats
+ *
+ * Inserts all team stats into the database with the specified
+ * collection that is provided from db module. Will receive
+ * payload, that is, the array of json objects from the
+ * payload function and will insert that data into the db
+ * via the db service insert method
+ */
+module.exports.insertAllSeasonalTeamStats = function() {
+    try {
+        this.getAllSeasonalTeamStats().then((data) => {
+            // get the payload
+            let payload = responseParser.payload(data, "teamStats");
+            // connect to db
+            let options = {};
+            // insert
+            dbService.insert(db.collection(credentials.mongo.collections.teamStats), payload, options).then((res) => {
+                console.log('Inserted successfully...');
+            }).catch((err) => {
+                throw new Error(err);
+            });
+        }).catch((data) => {
+            console.log(data);
+            console.log(new Error(data));
+        });
+    } catch(e) {
+        console.log('An error occurred: ' + e);
+    }
+};
+
+/**
+ * Insert all players profiles
+ *
+ * Inserts all player profiles into the database with the specified
+ * collection that is provided from db module. Will receive
+ * payload, that is, the array of json objects from the
+ * payload function and will insert that data into the db
+ * via the db service insert method
+ */
 module.exports.insertAllPlayerProfiles = function() {
     try {
         this.getAllPlayerProfiles().then((data) => {
@@ -187,25 +215,6 @@ function updatePlayerWithId(id, arr, options) {
 // export the module
 module.exports.updatePlayerWithId = updatePlayerWithId;
 
-
-/**
- * find player with id
- *
- * Takes an id of a player and will find that
- * player in the collection
- */
-module.exports.findPlayerWithId = function(id, options, callback) {
-    options = {} || options;
-    try {
-        dbService.find(db.collection(credentials.mongo.collections.playerStats), {"player.id":id}, options).then(function(result) {
-            callback(result[0] == "undefined"? [] : result[0]);
-        }).catch(function(err) {
-            throw new Error(err);
-        })
-    } catch(e) {
-        console.log('An error occurred: ' + e);
-    }
-};
 
 
 /**
@@ -288,6 +297,26 @@ module.exports.updateAllPlayers = function() {
   } catch(e) {
       console.log('An error occurred: ' + e);
   }
+};
+
+
+/**
+ * find player with id
+ *
+ * Takes an id of a player and will find that
+ * player in the collection
+ */
+module.exports.findPlayerWithId = function(id, options, callback) {
+    options = {} || options;
+    try {
+        dbService.find(db.collection(credentials.mongo.collections.playerStats), {"player.id":id}, options).then(function(result) {
+            callback(result[0] == "undefined"? [] : result[0]);
+        }).catch(function(err) {
+            throw new Error(err);
+        })
+    } catch(e) {
+        console.log('An error occurred: ' + e);
+    }
 };
 
 
