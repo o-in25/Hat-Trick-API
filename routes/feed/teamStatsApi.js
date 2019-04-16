@@ -6,17 +6,9 @@ let RequestManager = require('../../middlewares/requestManager');
 let dbService = require('../../service/dbService');
 let db = require('../../service/db');
 let ref = require('../../service/service-workers/ref/ref');
+let credentials = require('../../credentials');
 /* gets the entire body response for each request */
 
-
-
-/*
- * Returns all stats of all
- * players
- */
-router.get('/', function(req, res, next) {
-
-});
 
 
 /*
@@ -31,6 +23,14 @@ router.get('/team/:id', function(req, res, next) {
     });
 });
 
+
+router.get('/rosters', function(req, res, next) {
+    dbService.find(db.collection(credentials.mongo.collections.teamRosters), {}, {}).then((dbResponse) => {
+        res.send(dbResponse);
+    }).catch((err) => {
+        console.log(err);
+    });
+});
 
 
 

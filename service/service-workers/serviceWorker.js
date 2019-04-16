@@ -39,10 +39,13 @@ module.exports.getAllPlayers = function() {
 };
 
 /**
- * This is a test - and it most definitely will
- * not work
+ * Join
+ *
+ * "Joins" the collections team stats and player
+ * stats to form a team roster - that is then inserted
+ * into a new collcetion called team rosters
  */
-module.exports.join = function() {
+module.exports.insertTeamRosters = function() {
     dbService.aggregate(db.collection(credentials.mongo.collections.teamStats), {}, {
         $lookup: {
             from: credentials.mongo.collections.playerStats,

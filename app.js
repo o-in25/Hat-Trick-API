@@ -51,7 +51,7 @@ db.init(url).then((config) => {
         });
      */
     //serviceWorker.insertAllPlayerProfiles();
-    serviceWorker.join();
+    //serviceWorker.insertTeamRosters();
 }).catch((err) => {
 
 

@@ -3,7 +3,6 @@
  * we would need, plus a few extra goodies...
  */
 
-
 module.exports.insert = function(collection, documents, options) {
     return new Promise((resolve, reject) => {
         if(!collection) {
@@ -32,28 +31,6 @@ module.exports.update = function(collection, query, update, options) {
         }
     });
 };
-
-
-
-module.exports.updateMany = function(collection, query, update, options) {
-    return new Promise((resolve, reject) => {
-        if(!collection) {
-            reject(new Error('Collection cannot be undefined'));
-        } else if(typeof query !== "object") {
-            reject(new Error('Query must be of type object'));
-        } else {
-            options = options || {};
-            collection.updateMany(query, update, options).toArray(function(err, res) {
-                if(err) {
-                    reject(new Error(err));
-                } else {
-                    resolve(res);
-                }
-            });
-        }
-    });
-};
-
 
 module.exports.updateMany = function(collection, query, update, options) {
     return new Promise((resolve, reject) => {
@@ -92,7 +69,6 @@ module.exports.find = function(collection, query, options) {
     });
 };
 
-
 module.exports.wildcardSearch = function(collection, query, options) {
     return new Promise((resolve, reject) => {
         if(!collection) {
@@ -127,7 +103,6 @@ module.exports.indexCollection = function(collection) {
 };
 
 
-// this probably does not work
 module.exports.aggregate = function(collection, options, aggregation, callback) {
     return collection.aggregate(aggregation, options).toArray(function(err, res) {
         if(err) {
