@@ -45,7 +45,7 @@ module.exports.init = function(url) {
             db = response.db(credentials.mongo.dbs.dbTest);
             // specify the collection
             // by default it will be player stats
-            collection = db.collection(credentials.mongo.collections.playerStats);
+            collection = db.collection(credentials.mongo.collections.teamStats);
             let config = {
                 client:client,
                 db:db,

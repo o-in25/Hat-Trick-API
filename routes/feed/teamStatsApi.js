@@ -5,6 +5,7 @@ let RequestManager = require('../../middlewares/requestManager');
 // the db
 let dbService = require('../../service/dbService');
 let db = require('../../service/db');
+let ref = require('../../service/service-workers/ref/ref');
 /* gets the entire body response for each request */
 
 
@@ -14,11 +15,7 @@ let db = require('../../service/db');
  * players
  */
 router.get('/', function(req, res, next) {
-    dbService.find(db.collection(credentials.mongo.collections.playerStats), {}, {}).then((dbResponse) => {
-        res.send(dbResponse);
-    }).catch((err) => {
-        console.log(err);
-    });
+
 });
 
 

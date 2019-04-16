@@ -43,10 +43,17 @@ module.exports.payload = function(data, statType) {
             response.push({"lastUpdatedOn":lastUpdatedOn, "player":playerAt, "teamAsOfDate":currentTeamAt});
         }
         return response;
-
+    } else if(statType == "teamStats") {
+        let teamStats = payload.teamStatsTotals;
+        let response = [];
+        for(let i = 0; i < teamStats.length; i++) {
+            let teamAt = (teamStats[i]).team;
+            let statsAt = (teamStats[i]).stats;
+            response.push({"lastUpdatedOn":lastUpdatedOn, "team":teamAt, "stats":statsAt})
+        }
+        return response;
     }
 };
-
 
 
 function addDerivedStats(playerStatsAt, playerPlayerAt) {
@@ -57,3 +64,11 @@ function addDerivedStats(playerStatsAt, playerPlayerAt) {
     playerStatsAt['ratings'] = ratings.generate(playerStatsAt, playerPlayerAt);
     playerPlayerAt['rankings'] = rankings;
 }
+
+
+module.exports.teamGroup = function(data) {
+    let sample = data[0];
+    return {
+        id:""
+    }
+};

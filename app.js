@@ -40,7 +40,7 @@ db.init(url).then((config) => {
     //serviceWorker.insertAllPlayers();
     //serviceWorker.getAllPlayerIds();
     //serviceWorker.getAllTeamIds();
-    serviceWorker.updateAllPlayers();
+    //serviceWorker.updateAllPlayers();
     //serviceWorker.findDuplicates();
     //serviceWorker.deriveTeamMinutes();
     //serviceWorker.insertAllPlayers();
@@ -51,6 +51,7 @@ db.init(url).then((config) => {
         });
      */
     //serviceWorker.insertAllPlayerProfiles();
+    serviceWorker.insertAllSeasonalTeamStats();
 }).catch((err) => {
 
 

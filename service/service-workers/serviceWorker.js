@@ -13,6 +13,7 @@ let requestManager = require('../../middlewares/requestManager');
 // response parser
 let responseParser = require('../../middlewares/responseParser');
 let credentials = require('../../credentials');
+let ref = require('./ref/ref');
 
 /**
  * Get all players
@@ -36,6 +37,55 @@ module.exports.getAllPlayers = function() {
         }
     });
 };
+
+/**
+ * Get all team players
+ *
+ * Work in progress
+ */
+module.exports.getAllTeamPlayers = function() {
+
+};
+
+module.exports.getAllSeasonalTeamStats = function() {
+    return new Promise((resolve, reject) => {
+        let request = requestManager.buildRequest('v2.0', 'nba', '2018-2019-regular', 'team_stats_totals', {});
+        let data = requestManager.makeRequest(request);
+        if(data) {
+            resolve(data);
+        } else if(!data) {
+            reject('The Promise Request Could Not Be Made');
+        } else if(data.playerStatsTotals.length == 0) {
+            reject('The Requested Resource Could Not Be Found');
+        }
+    });
+};
+
+
+module.exports.insertAllSeasonalTeamStats = function() {
+    try {
+        this.getAllSeasonalTeamStats().then((data) => {
+            // get the payload
+            let payload = responseParser.payload(data, "teamStats");
+            // connect to db
+            let options = {};
+            // insert
+            dbService.insert(db.collection(credentials.mongo.collections.teamStats), payload, options).then((res) => {
+                console.log('Inserted successfully...');
+            }).catch((err) => {
+                throw new Error(err);
+            });
+        }).catch((data) => {
+            console.log(data);
+            console.log(new Error(data));
+        });
+    } catch(e) {
+        console.log('An error occurred: ' + e);
+    }
+};
+
+
+
 
 /**
  * Get all players
