@@ -16,6 +16,7 @@ let serviceWorker = require('./../service/service-workers/serviceWorker');
  * given string
  */
 router.get('/search/:any', function(req, res, next) {
+    console.log('Searching...');
     serviceWorker.wildcard((req.params.any.toString()), {}, function(data) {
         res.send(data);
     });

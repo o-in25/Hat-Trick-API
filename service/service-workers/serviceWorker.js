@@ -62,7 +62,14 @@ module.exports.insertTeamRosters = function() {
     });
 
 };
-
+/**
+ * Get all team stats
+ *
+ * Makes a call to the mysportsfeeds api to gather
+ * the data specified by the request manager (in
+ * this case, all players) and returns a promise
+ * with the raw data
+ */
 module.exports.getAllSeasonalTeamStats = function() {
     return new Promise((resolve, reject) => {
         let request = requestManager.buildRequest('v2.0', 'nba', '2018-2019-regular', 'team_stats_totals', {});
@@ -76,6 +83,8 @@ module.exports.getAllSeasonalTeamStats = function() {
         }
     });
 };
+
+
 
 
 /**
@@ -241,6 +250,40 @@ function updatePlayer(query, arr, options) {
     }
 }
 
+module.exports.updatePlayerProfilesWithTeamImages = function() {
+    let teamIds = ref.teamIds;
+    for(let i = 0; i < teamIds.length; i++) {
+        let current = teamIds[i];
+        dbService.find(db.collection(credentials.mongo.collections.teamRosters), {"team.id":Number(current)}, {}).then(function(dbResponse) {
+            let currentTeam = dbResponse[0];
+            let teamName = currentTeam.team.abbreviation;
+            // check for cases
+
+            switch(teamName) {
+                case "BRO":
+                    teamName = "BKN";
+                    break;
+                case "NOP":
+                    teamName = "NO";
+                case "UTA":
+                    teamName = "UTH";
+                case "OKL":
+                    teamName = "OKC";
+            
+            }
+           
+            teamName.toLowerCase();
+            let url = "https://a.espncdn.com/i/teamlogos/nba/500/" + teamName + ".png";
+            dbService.update(db.collection(credentials.mongo.collections.teamRosters), {"team.id":Number(current)}, { $set: {"team.officalLogoImageSrc" : url} }, {}).then(function(res) {
+                console.log('Successfully updated')
+            }).catch(function(err) {
+                throw err;
+            });
+        }).catch(function(err) {
+            throw new Error(err);
+        });
+    }
+}
 
 /**
  * Update all players

@@ -44,13 +44,14 @@ db.init(url).then((config) => {
     //serviceWorker.findDuplicates();
     //serviceWorker.deriveTeamMinutes();
     //serviceWorker.insertAllPlayers();
-    //dbService.indexCollection(config.collection);
+    dbService.indexCollection(config.collection);
     /*
         serviceWorker.wildcard("LeBron", {}, function(data) {
             console.log(data);
         });
      */
     //serviceWorker.insertAllPlayerProfiles();
+    serviceWorker.updatePlayerProfilesWithTeamImages();
     //serviceWorker.insertTeamRosters();
 }).catch((err) => {
 
