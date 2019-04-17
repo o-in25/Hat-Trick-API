@@ -33,8 +33,12 @@ const url = 'mongodb://' +  credentials.mongo.username + ':' + credentials.mongo
 db.init(url).then((config) => {
     console.log('Connected to db...');
     /**
-     * Put any service workers here...
+     * Put any service workers here or
+     * uncomment the service worker you want 
+     * to use and the service will be
+     * executed upon the start of the server
      */
+
     //serviceWorker.insertTest();
     //serviceWorker.updateTest();
     //serviceWorker.insertAllPlayers();
@@ -44,15 +48,16 @@ db.init(url).then((config) => {
     //serviceWorker.findDuplicates();
     //serviceWorker.deriveTeamMinutes();
     //serviceWorker.insertAllPlayers();
-    dbService.indexCollection(config.collection);
+    //dbService.indexCollection(config.collection);
     /*
         serviceWorker.wildcard("LeBron", {}, function(data) {
             console.log(data);
         });
      */
     //serviceWorker.insertAllPlayerProfiles();
-    serviceWorker.updatePlayerProfilesWithTeamImages();
+    //serviceWorker.updatePlayerProfilesWithTeamImages();
     //serviceWorker.insertTeamRosters();
+    
 }).catch((err) => {
 
 
