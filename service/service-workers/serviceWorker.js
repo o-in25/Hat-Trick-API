@@ -14,6 +14,33 @@ let requestManager = require('../../middlewares/requestManager');
 let responseParser = require('../../middlewares/responseParser');
 let credentials = require('../../credentials');
 let ref = require('./ref/ref');
+let self = this;
+
+
+
+
+module.exports.sortPlayers = function(options, sort) {
+    options = {} || options;
+    return new Promise(function(resolve, reject) {
+        dbService.sort(db.collection(credentials.mongo.collections.playerStats), {}, {}, sort).then(function(dbResponse) {
+            resolve(dbResponse);
+        }).catch(function(err) {
+            reject(err);
+        });
+    });
+};
+
+module.exports.addSortField = function() {
+    self.sortPlayers({},         {"stats.offense.ptsPerGame": -1}).then((dbResponse) => {
+        for(let i = 0; i < dbResponse.length; i++) {
+            dbService.update(db.collection(credentials.mongo.collections.playerStats), {"player.id":dbResponse[i].player.id}, {
+                $set: {"stats.advanced.rankingTotal": (i + 1)}}, {multi: false}).then();
+        }
+    }).catch((err) => {
+        console.log(err);
+    });
+};
+
 
 /**
  * Get all players
@@ -43,7 +70,7 @@ module.exports.getAllPlayers = function() {
  *
  * "Joins" the collections team stats and player
  * stats to form a team roster - that is then inserted
- * into a new collcetion called team rosters
+ * into a new collection called team rosters
  */
 module.exports.insertTeamRosters = function() {
     dbService.aggregate(db.collection(credentials.mongo.collections.teamStats), {}, {
@@ -60,7 +87,6 @@ module.exports.insertTeamRosters = function() {
             throw new Error(err);
         });
     });
-
 };
 /**
  * Get all team stats
@@ -83,8 +109,6 @@ module.exports.getAllSeasonalTeamStats = function() {
         }
     });
 };
-
-
 
 
 /**
@@ -258,20 +282,20 @@ module.exports.updatePlayerProfilesWithTeamImages = function() {
             let currentTeam = dbResponse[0];
             let teamName = currentTeam.team.abbreviation;
             // check for cases
-
             switch(teamName) {
                 case "BRO":
                     teamName = "BKN";
                     break;
                 case "NOP":
                     teamName = "NO";
+                    break;
                 case "UTA":
                     teamName = "UTH";
+                    break;
                 case "OKL":
                     teamName = "OKC";
-            
+                    break;
             }
-           
             teamName.toLowerCase();
             let url = "https://a.espncdn.com/i/teamlogos/nba/500/" + teamName + ".png";
             dbService.update(db.collection(credentials.mongo.collections.teamRosters), {"team.id":Number(current)}, { $set: {"team.officalLogoImageSrc" : url} }, {}).then(function(res) {
@@ -283,7 +307,7 @@ module.exports.updatePlayerProfilesWithTeamImages = function() {
             throw new Error(err);
         });
     }
-}
+};
 
 /**
  * Update all players
@@ -312,7 +336,6 @@ module.exports.updateAllPlayers = function() {
                   let currentId = dbResponse[j].player.id;
                   for(let i = 0; i < payload.length; i++) {
                       let current = payload[i];
-
                       if(current.player.id == currentId) {
                           let res = payload.filter(temp => temp.player.id == currentId);
                           if(res.length > 1) {

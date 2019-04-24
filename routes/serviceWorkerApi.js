@@ -22,5 +22,15 @@ router.get('/search/:any', function(req, res, next) {
     });
 });
 
+router.get('/ranking/field', function(req, res, next) {
+    serviceWorker.sortPlayers({}, {
+        "stats.offense.ptsPerGame": -1
+    }).then(function(data) {
+        res.send(data);
+    }).catch((err) => {
+        console.log(err);
+    });
+});
+
 
 module.exports = router;

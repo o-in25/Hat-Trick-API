@@ -102,6 +102,19 @@ module.exports.indexCollection = function(collection) {
 
 };
 
+module.exports.sort = function(collection, query, options, sort) {
+    return new Promise(function(resolve, reject) {
+        options = {} || options;
+        collection.find(query, options).sort(sort).toArray(function(err, res) {
+            if(err) {
+                reject(err);
+            } else {
+                resolve(res);
+            }
+        });
+    });
+};
+
 
 module.exports.aggregate = function(collection, options, aggregation, callback) {
     return collection.aggregate(aggregation, options).toArray(function(err, res) {

@@ -57,10 +57,9 @@ db.init(url).then((config) => {
     //serviceWorker.insertAllPlayerProfiles();
     //serviceWorker.updatePlayerProfilesWithTeamImages();
     //serviceWorker.insertTeamRosters();
+    serviceWorker.addSortField();
     
 }).catch((err) => {
-
-
     throw new Error(err);
 });
 
