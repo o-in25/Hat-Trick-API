@@ -17,12 +17,10 @@ let ref = require('./ref/ref');
 let self = this;
 
 
-
-
 module.exports.sortPlayers = function(options, sort) {
     options = {} || options;
     return new Promise(function(resolve, reject) {
-        dbService.sort(db.collection(credentials.mongo.collections.playerStats), {}, {}, sort).then(function(dbResponse) {
+        dbService.sort(db.collection(credentials.mongo.collections.playerStats), {}, options, sort).then(function(dbResponse) {
             resolve(dbResponse);
         }).catch(function(err) {
             reject(err);
@@ -30,8 +28,9 @@ module.exports.sortPlayers = function(options, sort) {
     });
 };
 
-module.exports.addSortField = function() {
-    self.sortPlayers({},         {"stats.offense.ptsPerGame": -1}).then((dbResponse) => {
+
+module.exports.addOffRtng = function() {
+    self.sortPlayers({},{"stats.offense.ptsPerGame": -1}).then((dbResponse) => {
         for(let i = 0; i < dbResponse.length; i++) {
             dbService.update(db.collection(credentials.mongo.collections.playerStats), {"player.id":dbResponse[i].player.id}, {
                 $set: {"stats.advanced.rankingTotal": (i + 1)}}, {multi: false}).then();
@@ -41,6 +40,93 @@ module.exports.addSortField = function() {
     });
 };
 
+module.exports.addDefRtng = function() {
+    self.sortPlayers({}, {"stats.defense.stl": -1}).then((dbResponse) => {
+        for(let i = 0; i < dbResponse.length; i++) {
+            dbService.update(db.collection(credentials.mongo.collections.playerStats), {"player.id":dbResponse[i].player.id}, {
+                $set: {"stats.advanced.defRankingTotal": (i + 1)}}, {multi: false}).then();
+        }
+    }).catch((err) => {
+        console.log(err);
+    });
+};
+
+/**
+ * Testing stuff
+ */
+function addOffensiveRating() {
+    return new Promise((resolve, reject) => {
+        self.sortPlayers({},{"stats.offense.ptsPerGame": -1}).then((dbResponse) => {
+            for(let i = 0; i < dbResponse.length; i++) {
+                dbService.update(db.collection(credentials.mongo.collections.playerStats), {"player.id":dbResponse[i].player.id}, {
+                    $set: {"stats.advanced.rankingTotal": (i + 1)}}, {multi: false}).then((res) => {
+                    resolve(res);
+                });
+            }
+        }).catch((err) => {
+            reject();
+        });
+    });
+}
+
+function addDefensiveRating() {
+    return new Promise((resolve, reject) => {
+        self.sortPlayers({},{"stats.offense.ptsPerGame": -1}).then((dbResponse) => {
+            for(let i = 0; i < dbResponse.length; i++) {
+                dbService.update(db.collection(credentials.mongo.collections.playerStats), {"player.id":dbResponse[i].player.id}, {
+                    $set: {"stats.defense.stl": (i + 1)}}, {multi: false}).then((res) => {
+                    resolve(res);
+                });
+            }
+        }).catch((err) => {
+            reject();
+        });
+    });
+}
+
+function addUsageRate() {
+    return new Promise((resolve, reject) => {
+
+    });
+}
+
+/**
+ * Insert all players
+ *
+ * Inserts all players into the database with the specified
+ * collection that is provided from db module. Will receive
+ * payload, that is, the array of json objects from the
+ * payload function and will insert that data into the db
+ * via the db service insert method
+ */
+module.exports.insertAllPlayersTest = function() {
+    try {
+        this.getAllPlayers().then((data) => {
+            // get the payload
+            let payload = responseParser.payload(data, "playerStats");
+            // connect to db
+            let options = {};
+            // insert
+            dbService.insert(db.collection(credentials.mongo.collections.playerStats), payload, options).then((res) => {
+                console.log('Inserted successfully...');
+                let promises = Promise.all([
+                    addDefensiveRating(),
+                    addOffensiveRating()
+                ]);
+                promises.then(() => {
+                    console.log('Added stats successfully...');
+                });
+            }).catch((err) => {
+                throw new Error(err);
+            });
+        }).catch((data) => {
+            console.log(data);
+            console.log(new Error(data));
+        }).then().then();
+    } catch(e) {
+        console.log('An error occurred: ' + e);
+    }
+};
 
 /**
  * Get all players
