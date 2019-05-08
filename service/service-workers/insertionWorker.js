@@ -154,8 +154,10 @@ function addTeamRosters() {
                 let players = [];
                 for(let j = 0; j < payload.length; j++) {
                     let currentPlayer = payload[j];
-                    if(currentPlayer.team.id == currentTeam) {
-                        players.push(currentPlayer);
+                    if(currentPlayer.player.currentTeam != null) {
+                        if(currentPlayer.player.currentTeam.id == currentTeam) {
+                            players.push(currentPlayer);
+                        }
                     }
                 }
                 dbService.updateMany(db.collection(credentials.mongo.collections.teams), {"team.id": Number(currentTeam)}, {
