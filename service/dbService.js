@@ -40,12 +40,10 @@ module.exports.updateMany = function(collection, query, update, options) {
             reject(new Error('Query must be of type object'));
         } else {
             options = options || {};
-            collection.updateMany(query, update, options).toArray(function(err, res) {
-                if(err) {
-                    reject(new Error(err));
-                } else {
-                    resolve(res);
-                }
+            collection.updateMany(query, update, options).then((res) => {
+                resolve(res);
+            }).catch((err) => {
+                throw err;
             });
         }
     });
@@ -70,9 +68,6 @@ module.exports.find = function(collection, query, options) {
 };
 
 
-module.exports.lookup = function(lookup, unwind) {
-    collection.aggregate([]);
-}
 
 module.exports.wildcardSearch = function(collection, query, options) {
     return new Promise((resolve, reject) => {
