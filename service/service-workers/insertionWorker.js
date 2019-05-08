@@ -33,7 +33,6 @@ function updateTeamMinutes() {
                     let currentPlayer = payload[j];
                     if(currentPlayer.player.currentTeam != null) {
                         if(currentPlayer.player.currentTeam.id == currentTeam) {
-
                              minutes += ((currentPlayer.stats.miscellaneous.minSeconds) / 60);
                         }
                     }
@@ -187,8 +186,33 @@ function addTeamRosters() {
     })
 }
 
-function addAdvancedStatistics() {
 
+
+function addAdvancedStatistics() {
+    return new Promise((resolve, reject) => {
+        dbService.find(db.collection(credentials.mongo.collections.players), {}, {}).then((dbResponse) => {
+            for(let i = 0; i < dbResponse.length; i++) {
+                let playerAt = dbResponse[i];
+                serviceWorker.calculateUsageRate(playerAt).then((usageRate) => {
+                   serviceWorker.calculateAssistPercentage(playerAt).then((assistPercentage) => {
+                       // add any more advanced stats here
+                       dbService.updateMany(db.collection(credentials.mongo.collections.players), {"player.id":playerAt.player.id}, {
+                           $set: {
+                               "stats.advanced.usageRate":usageRate,
+                               "stats.advanced.asstPct":assistPercentage
+                           }
+                       }, {multi: false}).then((res) => {
+                           resolve(res);
+                       })
+                   })
+                }).catch((err) => {
+                    reject(err);
+                });
+            }
+        }).catch((err) => {
+            reject(err);
+        })
+    })
 }
 
 
@@ -237,12 +261,11 @@ module.exports.insertPlayerProfiles = function() {
                 addPlayerInfoToPlayerProfiles().then((promises) => {
                     Promise.all(promises).then((res) => {
                         console.log('Added player info...');
-                        addPlayerRankings().then((res) => {
+                        let promises = [];
+                        promises.push(addPlayerRankings());
+                        promises.push(addAdvancedStatistics());
+                        Promise.all(promises).then((res) => {
                             console.log('Done with players...');
-                            // anything else
-                            // will go here
-                        }).catch((err) => {
-                            throw err;
                         });
                     }).catch((err) => {
                         throw err;
