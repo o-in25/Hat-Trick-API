@@ -22,33 +22,42 @@ let serviceWorker = require('./serviceWorker');
  * Testing stuff
  */
 function updateTeamMinutes() {
-    dbService.find(db.collection(credentials.mongo.collections.teamStats), {}, {}).then((teams) => {
-        for(let i = 0; i < teams.length; i++) {
-            let current = teams[i];
-            let currentId = current.id;
-            dbService.find(db.collection(credentials.mongo.collections.playerStats), {"team.id":currentId}, {}).then((players) => {
+
+
+    return new Promise((resolve, reject) => {
+        serviceWorker.getAllPlayers().then((data) => {
+            let payload = responseParser.payload(data, "rosters");
+            let promises = [];
+            for(let i = 0; i < ref.teamIds.length; i++) {
+                let currentTeam = ref.teamIds[i];
                 let minutes = 0;
-                for(let j = 0; j < teams.length; j++) {
-                    let current = players[i];
-                    minutes += (current.stats.miscellaneous.minSeconds / 60);
-                }
-                dbService.updateMany(db.collection(credentials.mongo.collections.teamStats), {"team.id":currentId}, {
-                    $set: {
-                        "stats.miscellaneous.teamMinutes": minutes
+                for(let j = 0; j < payload.length; j++) {
+                    let currentPlayer = payload[j];
+                    if(currentPlayer.player.currentTeam != null) {
+                        if(currentPlayer.player.currentTeam.id == currentTeam) {
+
+                             minutes += ((currentPlayer.stats.miscellaneous.minSeconds) / 60);
+                        }
                     }
-                }, {}).then((res) => {
-                    console.log('Updated team minutes...');
-                    resolve(res);
-                }).catch((err) => {
-                    throw (err);
-                });
+                }
+                promises.push(dbService.updateMany(db.collection(credentials.mongo.collections.teams), {"team.id": Number(currentTeam)}, {
+                    $set: {
+                        "stats.miscellaneous.teamMin": minutes
+                    }
+                }, {multi: false}));
+            }
+            Promise.all(promises).then((res) => {
+                console.log('Added team minutes...');
+                resolve(res);
             }).catch((err) => {
-                throw (err);
-            });
-        }
-    }).catch((err) => {
-        throw (err);
+                reject(err);
+            })
+
+        }).catch((err) => {
+            reject(err);
+        })
     });
+
 }
 
 // helper functions to assist
@@ -164,12 +173,11 @@ function addTeamRosters() {
                         }
                     }
                 }
-                dbService.updateMany(db.collection(credentials.mongo.collections.teams), {"team.id": Number(currentTeam)}, {
+                promises.push(dbService.updateMany(db.collection(credentials.mongo.collections.teams), {"team.id": Number(currentTeam)}, {
                     $set: {
                         "roster": players
                     }
-                }, {multi: false});
-                promises.push();
+                }, {multi: false}));
             }
             Promise.all(promises).then((res) => {
                 console.log('Added team rosters...');
@@ -196,6 +204,7 @@ module.exports.insertTeamProfiles = function() {
                 let promises = [];
                 promises.push(addTeamRosters());
                 promises.push(updateTeamStatsWithImages());
+                promises.push(updateTeamMinutes());
                 Promise.all(promises).then((res) => {
                     console.log('Added team info...');
                 }).catch((err) => {
