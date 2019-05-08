@@ -22,8 +22,6 @@ let serviceWorker = require('./serviceWorker');
  * Testing stuff
  */
 function updateTeamMinutes() {
-
-
     return new Promise((resolve, reject) => {
         serviceWorker.getAllPlayers().then((data) => {
             let payload = responseParser.payload(data, "rosters");
@@ -40,7 +38,7 @@ function updateTeamMinutes() {
                         }
                     }
                 }
-                promises.push(dbService.updateMany(db.collection(credentials.mongo.collections.teams), {"team.id": Number(currentTeam)}, {
+                promises.push(dbService.updateMany(db.collection(credentials.mongo.collections.teams), {"team.id": Math.ceil(Number(currentTeam))}, {
                     $set: {
                         "stats.miscellaneous.teamMin": minutes
                     }
@@ -189,6 +187,9 @@ function addTeamRosters() {
     })
 }
 
+function addAdvancedStatistics() {
+
+}
 
 
 module.exports.insertTeamProfiles = function() {
