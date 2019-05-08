@@ -32,7 +32,7 @@ function updateTeamMinutes() {
                     let current = players[i];
                     minutes += (current.stats.miscellaneous.minSeconds / 60);
                 }
-                dbService.update(db.collection(credentials.mongo.collections.teamStats), {"team.id":currentId}, {
+                dbService.updateMany(db.collection(credentials.mongo.collections.teamStats), {"team.id":currentId}, {
                     $set: {
                         "stats.miscellaneous.teamMinutes": minutes
                     }
@@ -98,7 +98,7 @@ function addPlayerInfoToPlayerProfiles() {
            for(let i = 0; i < players.length; i++) {
                let current = players[i];
                let currentId = current.player.id;
-               promises.push(dbService.updateMany(db.collection(credentials.mongo.collections.test), {"player.id":currentId}, {
+               promises.push(dbService.updateMany(db.collection(credentials.mongo.collections.players), {"player.id":currentId}, {
                    $set: {
                        "player.officialImgSrc":current.player.officialImageSrc,
                        "player.currentContractYear":current.player.currentContractYear,
@@ -120,13 +120,13 @@ function addPlayerRankings() {
         serviceWorker.sortPlayers({},{"stats.offense.ptsPerGame": -1}).then((dbResponse) => {
             let promises = [];
             for(let i = 0; i < dbResponse.length; i++) {
-                promises.push(dbService.updateMany(db.collection(credentials.mongo.collections.test), {"player.id":dbResponse[i].player.id}, {$set: {"stats.advanced.offRankingTotal": (i + 1)}}, {multi: false}));
+                promises.push(dbService.updateMany(db.collection(credentials.mongo.collections.players), {"player.id":dbResponse[i].player.id}, {$set: {"stats.rankings.offRankingTotal": (i + 1)}}, {multi: false}));
             }
             Promise.all(promises).then((res) => {
                 serviceWorker.sortPlayers({}, {"stats.defense.stl": -1}).then((dbResponse) => {
                     let promises = [];
                     for(let i = 0; i < dbResponse.length; i++) {
-                        promises.push(dbService.updateMany(db.collection(credentials.mongo.collections.test), {"player.id":dbResponse[i].player.id}, {$set: {"stats.advanced.defRankingTotal": (i + 1)}}, {multi: false}));
+                        promises.push(dbService.updateMany(db.collection(credentials.mongo.collections.players), {"player.id":dbResponse[i].player.id}, {$set: {"stats.rankings.defRankingTotal": (i + 1)}}, {multi: false}));
                     }
                     Promise.all(promises).then((res) => {
                         // any other rankings here
@@ -144,6 +144,36 @@ function addPlayerRankings() {
     })
 }
 
+function addTeamRosters() {
+    return new Promise((resolve, reject) => {
+        serviceWorker.getAllPlayers().then((data) => {
+            let payload = responseParser.payload(data, "rosters");
+            let promises = [];
+            for(let i = 0; i < ref.teamIds.length; i++) {
+                let currentTeam = ref.teamIds[i];
+                let players = [];
+                for(let j = 0; j < payload.length; j++) {
+                    let currentPlayer = payload[j];
+                    if(currentPlayer.team.id == currentTeam) {
+                        players.push(currentPlayer);
+                    }
+                }
+                dbService.updateMany(db.collection(credentials.mongo.collections.teams), {"team.id": Number(currentTeam)}, {
+                    $set: {
+                        "roster": players
+                    }
+                }, {multi: false});
+                promises.push();
+            }
+            Promise.all(promises).then((res) => {
+                resolve(res);
+            }).catch((err) => {
+                reject(err);
+            })
+        });
+    })
+}
+
 
 
 module.exports.insertTeamProfiles = function() {
@@ -154,10 +184,11 @@ module.exports.insertTeamProfiles = function() {
             // connect to db
             let options = {};
             // insert
-            dbService.insert(db.collection(credentials.mongo.collections.teamStats), payload, options).then((res) => {
+            dbService.insert(db.collection(credentials.mongo.collections.teams), payload, options).then((res) => {
                 console.log('Inserted successfully...');
-                updateTeamStatsWithImages();
-                updateTeamMinutes();
+                addTeamRosters().then((res) => {
+                    console.log('Added team rosters...');
+                });
                 console.log('Added additional fields successfully...');
             }).catch((err) => {
                 throw new Error(err);
@@ -180,7 +211,7 @@ module.exports.insertPlayerProfiles = function() {
             let options = {};
             // change the collection
             // for this operation
-            dbService.insert(db.collection(credentials.mongo.collections.test), payload, options).then((res) => {
+            dbService.insert(db.collection(credentials.mongo.collections.players), payload, options).then((res) => {
                 console.log('Inserted successfully...');
                 addPlayerInfoToPlayerProfiles().then((promises) => {
                     Promise.all(promises).then((res) => {

@@ -61,8 +61,8 @@ db.init(url).then((config) => {
     //serviceWorker.insertTeamRosters();
     //serviceWorker.addOffRtng();
     //serviceWorker.addDefRtng();
-
-    insertService.insertPlayerProfiles();
+    insertService.insertTeamProfiles();
+    //insertService.insertPlayerProfiles();
     //insertService.insertTeamProfiles();
 }).catch((err) => {
     throw new Error(err);

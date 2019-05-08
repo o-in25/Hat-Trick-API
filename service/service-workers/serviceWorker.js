@@ -81,7 +81,7 @@ module.exports.getAllSeasonalTeamStats = function() {
 module.exports.sortPlayers = function(options, sort) {
     options = {} || options;
     return new Promise(function(resolve, reject) {
-        dbService.sort(db.collection(credentials.mongo.collections.test), {}, options, sort).then(function(dbResponse) {
+        dbService.sort(db.collection(credentials.mongo.collections.players), {}, options, sort).then(function(dbResponse) {
             resolve(dbResponse);
         }).catch(function(err) {
             reject(err);

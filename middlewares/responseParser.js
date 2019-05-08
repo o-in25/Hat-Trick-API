@@ -71,6 +71,20 @@ module.exports.payload = function(data, statType) {
             response.push({"lastUpdatedOn":lastUpdatedOn, "team":teamAt, "stats":statsAt})
         }
         return response;
+    } else if(statType == "rosters") {
+        // the player stats array
+        /**
+         * @param {{playerStatsTotals:object}} playerStats
+         */
+        let playerStats = payload.playerStatsTotals;
+        let response = [];
+        for(let i = 0; i < playerStats.length; i++) {
+
+            let playerStatsAt = (playerStats[i]).stats;
+            // derive player stats here
+            response.push({"player":(playerStats[i]).player, "team":(playerStats[i]).team, "stats":playerStatsAt});
+        }
+        return response;
     }
 };
 
