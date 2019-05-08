@@ -54,38 +54,42 @@ function updateTeamMinutes() {
 // helper functions to assist
 // with player insertion
 function updateTeamStatsWithImages() {
-    let teamIds = ref.teamIds;
-    for(let i = 0; i < teamIds.length; i++) {
-        let current = teamIds[i];
-        dbService.find(db.collection(credentials.mongo.collections.teamRosters), {"team.id":Number(current)}, {}).then(function(dbResponse) {
-            let currentTeam = dbResponse[0];
-            let teamName = currentTeam.team.abbreviation;
-            // check for cases
-            switch(teamName) {
-                case "BRO":
-                    teamName = "BKN";
-                    break;
-                case "NOP":
-                    teamName = "NO";
-                    break;
-                case "UTA":
-                    teamName = "UTH";
-                    break;
-                case "OKL":
-                    teamName = "OKC";
-                    break;
-            }
-            teamName.toLowerCase();
-            let url = "https://a.espncdn.com/i/teamlogos/nba/500/" + teamName + ".png";
-            dbService.update(db.collection(credentials.mongo.collections.teamRosters), {"team.id":Number(current)}, { $set: {"team.officalLogoImageSrc" : url} }, {}).then(function(res) {
-                console.log('Successfully updated')
+    return new Promise((resolve, reject) => {
+        let teamIds = ref.teamIds;
+        let promises = [];
+        for(let i = 0; i < teamIds.length; i++) {
+            let current = teamIds[i];
+            dbService.find(db.collection(credentials.mongo.collections.teams), {"team.id":Number(current)}, {}).then(function(dbResponse) {
+                let currentTeam = dbResponse[0];
+                let teamName = currentTeam.team.abbreviation;
+                // check for cases
+                switch(teamName) {
+                    case "BRO":
+                        teamName = "BKN";
+                        break;
+                    case "NOP":
+                        teamName = "NO";
+                        break;
+                    case "UTA":
+                        teamName = "UTH";
+                        break;
+                    case "OKL":
+                        teamName = "OKC";
+                        break;
+                }
+                teamName.toLowerCase();
+                let url = "https://a.espncdn.com/i/teamlogos/nba/500/" + teamName + ".png";
+                promises.push(dbService.updateMany(db.collection(credentials.mongo.collections.teams), {"team.id":Number(current)}, { $set: {"team.teamImg" : url} }, {multi: false}));
             }).catch(function(err) {
-                throw err;
+                reject(err);
             });
-        }).catch(function(err) {
-            throw new Error(err);
-        });
-    }
+        }
+        Promise.all(promises).then((res) => {
+            resolve(res);
+        }).catch((err) => {
+            reject(err);
+        })
+    })
 }
 
 function addPlayerInfoToPlayerProfiles() {
@@ -168,6 +172,7 @@ function addTeamRosters() {
                 promises.push();
             }
             Promise.all(promises).then((res) => {
+                console.log('Added team rosters...');
                 resolve(res);
             }).catch((err) => {
                 reject(err);
@@ -188,10 +193,14 @@ module.exports.insertTeamProfiles = function() {
             // insert
             dbService.insert(db.collection(credentials.mongo.collections.teams), payload, options).then((res) => {
                 console.log('Inserted successfully...');
-                addTeamRosters().then((res) => {
-                    console.log('Added team rosters...');
-                });
-                console.log('Added additional fields successfully...');
+                let promises = [];
+                promises.push(addTeamRosters());
+                promises.push(updateTeamStatsWithImages());
+                Promise.all(promises).then((res) => {
+                    console.log('Added team info...');
+                }).catch((err) => {
+                    throw err;
+                })
             }).catch((err) => {
                 throw new Error(err);
             });
