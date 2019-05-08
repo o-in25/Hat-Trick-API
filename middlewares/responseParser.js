@@ -20,6 +20,9 @@ module.exports.parse = function(raw) {
     return response;
 };
 
+
+
+
 module.exports.payload = function(data, statType) {
     let payload = JSON.parse(data);
     // the time stamp
@@ -78,7 +81,6 @@ function addDerivedStats(playerStatsAt, playerPlayerAt) {
     // ex: advanced: { efG: ...}, etc...
     playerStatsAt['advanced'] = stats.deriveAdvancedStats(playerStatsAt);
     playerStatsAt['ratings'] = ratings.generate(playerStatsAt, playerPlayerAt);
-    playerPlayerAt['rankings'] = rankings;
 }
 
 

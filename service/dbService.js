@@ -49,6 +49,9 @@ module.exports.updateMany = function(collection, query, update, options) {
     });
 };
 
+
+
+
 module.exports.find = function(collection, query, options) {
     return new Promise((resolve, reject) => {
        if(!collection) {

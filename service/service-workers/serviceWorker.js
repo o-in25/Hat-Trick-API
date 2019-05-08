@@ -31,12 +31,57 @@ module.exports.getAllPlayerInfo = function() {
     });
 };
 
+/**
+ * Get all players
+ *
+ * Makes a call to the mysportsfeeds api to gather
+ * the data specified by the request manager (in
+ * this case, all players) and returns a promise
+ * with the raw data
+ */
+module.exports.getAllPlayers = function() {
+    console.log('in the promise');
+    return new Promise((resolve, reject) => {
+        let request = requestManager.buildRequest('v2.0', 'nba', '2018-2019-regular', 'player_stats_totals', {});
+        let data = requestManager.makeRequest(request);
+        if(data) {
+            resolve(data);
+        } else if(!data) {
+            reject('The Promise Request Could Not Be Made');
+        } else if(data.playerStatsTotals.length == 0) {
+            reject('The Requested Resource Could Not Be Found');
+        }
+    });
+};
+
+/**
+ * Get all team stats
+ *
+ * Makes a call to the mysportsfeeds api to gather
+ * the data specified by the request manager (in
+ * this case, all players) and returns a promise
+ * with the raw data
+ */
+module.exports.getAllSeasonalTeamStats = function() {
+    return new Promise((resolve, reject) => {
+        let request = requestManager.buildRequest('v2.0', 'nba', '2018-2019-regular', 'team_stats_totals', {});
+        let data = requestManager.makeRequest(request);
+        if(data) {
+            resolve(data);
+        } else if(!data) {
+            reject('The Promise Request Could Not Be Made');
+        } else if(data.playerStatsTotals.length == 0) {
+            reject('The Requested Resource Could Not Be Found');
+        }
+    });
+};
+
 
 
 module.exports.sortPlayers = function(options, sort) {
     options = {} || options;
     return new Promise(function(resolve, reject) {
-        dbService.sort(db.collection(credentials.mongo.collections.playerStats), {}, options, sort).then(function(dbResponse) {
+        dbService.sort(db.collection(credentials.mongo.collections.test), {}, options, sort).then(function(dbResponse) {
             resolve(dbResponse);
         }).catch(function(err) {
             reject(err);
@@ -144,28 +189,7 @@ module.exports.insertAllPlayersTest = function() {
     }
 };
 
-/**
- * Get all players
- *
- * Makes a call to the mysportsfeeds api to gather
- * the data specified by the request manager (in
- * this case, all players) and returns a promise
- * with the raw data
- */
-module.exports.getAllPlayers = function() {
-    console.log('in the promise');
-    return new Promise((resolve, reject) => {
-        let request = requestManager.buildRequest('v2.0', 'nba', '2018-2019-regular', 'player_stats_totals', {});
-        let data = requestManager.makeRequest(request);
-        if(data) {
-            resolve(data);
-        } else if(!data) {
-            reject('The Promise Request Could Not Be Made');
-        } else if(data.playerStatsTotals.length == 0) {
-            reject('The Requested Resource Could Not Be Found');
-        }
-    });
-};
+
 
 /**
  * Join
@@ -190,27 +214,7 @@ module.exports.insertTeamRosters = function() {
         });
     });
 };
-/**
- * Get all team stats
- *
- * Makes a call to the mysportsfeeds api to gather
- * the data specified by the request manager (in
- * this case, all players) and returns a promise
- * with the raw data
- */
-module.exports.getAllSeasonalTeamStats = function() {
-    return new Promise((resolve, reject) => {
-        let request = requestManager.buildRequest('v2.0', 'nba', '2018-2019-regular', 'team_stats_totals', {});
-        let data = requestManager.makeRequest(request);
-        if(data) {
-            resolve(data);
-        } else if(!data) {
-            reject('The Promise Request Could Not Be Made');
-        } else if(data.playerStatsTotals.length == 0) {
-            reject('The Requested Resource Could Not Be Found');
-        }
-    });
-};
+
 
 
 /**

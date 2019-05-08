@@ -113,6 +113,39 @@ function addPlayerInfoToPlayerProfiles() {
    });
 }
 
+
+function addPlayerRankings() {
+    console.log('Adding rankings...');
+    return new Promise((resolve, reject) => {
+        serviceWorker.sortPlayers({},{"stats.offense.ptsPerGame": -1}).then((dbResponse) => {
+            let promises = [];
+            for(let i = 0; i < dbResponse.length; i++) {
+                promises.push(dbService.updateMany(db.collection(credentials.mongo.collections.test), {"player.id":dbResponse[i].player.id}, {$set: {"stats.advanced.offRankingTotal": (i + 1)}}, {multi: false}));
+            }
+            Promise.all(promises).then((res) => {
+                serviceWorker.sortPlayers({}, {"stats.defense.stl": -1}).then((dbResponse) => {
+                    let promises = [];
+                    for(let i = 0; i < dbResponse.length; i++) {
+                        promises.push(dbService.updateMany(db.collection(credentials.mongo.collections.test), {"player.id":dbResponse[i].player.id}, {$set: {"stats.advanced.defRankingTotal": (i + 1)}}, {multi: false}));
+                    }
+                    Promise.all(promises).then((res) => {
+                        // any other rankings here
+                        console.log('Added rankings...');
+                        resolve(res);
+                    })
+                });
+            }).catch((err) => {
+                reject(err);
+            })
+
+        }).catch((err) => {
+            reject(err);
+        });
+    })
+}
+
+
+
 module.exports.insertTeamProfiles = function() {
     try {
         serviceWorker.getAllSeasonalTeamStats().then((data) => {
@@ -152,8 +185,13 @@ module.exports.insertPlayerProfiles = function() {
                 addPlayerInfoToPlayerProfiles().then((promises) => {
                     Promise.all(promises).then((res) => {
                         console.log('Added player info...');
-                        // anything else
-                        // will go here 
+                        addPlayerRankings().then((res) => {
+                            console.log('Done with players...');
+                            // anything else
+                            // will go here
+                        }).catch((err) => {
+                            throw err;
+                        });
                     }).catch((err) => {
                         throw err;
                     });
