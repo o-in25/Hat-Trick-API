@@ -15,32 +15,22 @@ let responseParser = require('../../middlewares/responseParser');
 let credentials = require('../../credentials');
 let ref = require('./ref/ref');
 let self = this;
+const BASE = 0;
 
-
-
-
-module.exports.sortPlayers = function(options, sort) {
-    options = {} || options;
-    return new Promise(function(resolve, reject) {
-        dbService.sort(db.collection(credentials.mongo.collections.playerStats), {}, {}, sort).then(function(dbResponse) {
-            resolve(dbResponse);
-        }).catch(function(err) {
-            reject(err);
-        });
-    });
-};
-
-module.exports.addSortField = function() {
-    self.sortPlayers({},         {"stats.offense.ptsPerGame": -1}).then((dbResponse) => {
-        for(let i = 0; i < dbResponse.length; i++) {
-            dbService.update(db.collection(credentials.mongo.collections.playerStats), {"player.id":dbResponse[i].player.id}, {
-                $set: {"stats.advanced.rankingTotal": (i + 1)}}, {multi: false}).then();
+module.exports.getAllPlayerInfo = function() {
+    console.log('In the promise...');
+    return new Promise((resolve, reject) => {
+        let request = requestManager.buildRequest('v2.0', 'nba', '', 'players', {});
+        let data = requestManager.makeRequest(request);
+        if(data) {
+            resolve(data);
+        } else if(!data) {
+            reject('The Promise Request Could Not Be Made');
+        } else if(data.playerStatsTotals.length == 0) {
+            reject('The Requested Resource Could Not Be Found');
         }
-    }).catch((err) => {
-        console.log(err);
     });
 };
-
 
 /**
  * Get all players
@@ -66,6 +56,189 @@ module.exports.getAllPlayers = function() {
 };
 
 /**
+ * Get all team stats
+ *
+ * Makes a call to the mysportsfeeds api to gather
+ * the data specified by the request manager (in
+ * this case, all players) and returns a promise
+ * with the raw data
+ */
+module.exports.getAllSeasonalTeamStats = function() {
+    return new Promise((resolve, reject) => {
+        let request = requestManager.buildRequest('v2.0', 'nba', '2018-2019-regular', 'team_stats_totals', {});
+        let data = requestManager.makeRequest(request);
+        if(data) {
+            resolve(data);
+        } else if(!data) {
+            reject('The Promise Request Could Not Be Made');
+        } else if(data.playerStatsTotals.length == 0) {
+            reject('The Requested Resource Could Not Be Found');
+        }
+    });
+};
+
+
+module.exports.calculateUsageRate = function(playerAt) {
+    return new Promise((resolve, reject) => {
+        let currentTeam = playerAt.player.currentTeam;
+        // if they they're not on a team - they don't
+        // have a usage rate
+        if(currentTeam != null) {
+            dbService.find(db.collection(credentials.mongo.collections.teams), {"team.id":playerAt.player.currentTeam.id}, {}).then((dbResponse) => {
+                let team = dbResponse[BASE];
+                let teamMinutes = team.stats.miscellaneous.teamMin;
+                let teamfieldGoalAttempts = team.stats.fieldGoals.fgAtt;
+                let teamFreeThrowAttempts = team.stats.freeThrows.ftAtt;
+                let teamTov = team.stats.defense.tov;
+                let usageRate = stats.usageRate(playerAt.stats.fieldGoals.fgAtt, playerAt.stats.freeThrows.ftAtt, playerAt.stats.defense.tov, teamMinutes, (Math.ceil(playerAt.stats.miscellaneous.minSeconds / 60)), teamfieldGoalAttempts, teamFreeThrowAttempts, teamTov);
+                resolve(usageRate);
+            }).catch((err) => {
+                reject(err);
+            });
+        } else {
+            let usageRate = 0;
+            resolve(usageRate);
+        }
+    });
+};
+
+module.exports.calculateAssistPercentage = function(playerAt) {
+  return new Promise((resolve, reject) => {
+     let currentTeam = playerAt.player.currentTeam;
+     if(currentTeam != null) {
+         dbService.find(db.collection(credentials.mongo.collections.teams), {"team.id":playerAt.player.currentTeam.id}, {}).then((dbResponse) => {
+             let team = dbResponse[BASE];
+             let teamMinutes = team.stats.miscellaneous.teamMin;
+             let teamFieldGoals = team.stats.fieldGoals.fgMade;
+             let assistPercentage = stats.assistPercentage(playerAt.stats.offense.ast, (Math.ceil(playerAt.stats.miscellaneous.minSeconds / 60)), teamMinutes, teamFieldGoals, playerAt.stats.offense.fgMade);
+             resolve(assistPercentage);
+         }).catch((err) => {
+             reject(err);
+         });
+     } else {
+         let assistPercentage = 0;
+         resolve(assistPercentage);
+     }
+  });
+};
+
+
+
+
+module.exports.sortPlayers = function(options, sort) {
+    options = {} || options;
+    return new Promise(function(resolve, reject) {
+        dbService.sort(db.collection(credentials.mongo.collections.players), {}, options, sort).then(function(dbResponse) {
+            resolve(dbResponse);
+        }).catch(function(err) {
+            reject(err);
+        });
+    });
+};
+
+
+module.exports.addOffRtng = function() {
+    self.sortPlayers({},{"stats.offense.ptsPerGame": -1}).then((dbResponse) => {
+        for(let i = 0; i < dbResponse.length; i++) {
+            dbService.update(db.collection(credentials.mongo.collections.playerStats), {"player.id":dbResponse[i].player.id}, {
+                $set: {"stats.advanced.rankingTotal": (i + 1)}}, {multi: false}).then();
+        }
+    }).catch((err) => {
+        console.log(err);
+    });
+};
+
+module.exports.addDefRtng = function() {
+    self.sortPlayers({}, {"stats.defense.stl": -1}).then((dbResponse) => {
+        for(let i = 0; i < dbResponse.length; i++) {
+            dbService.update(db.collection(credentials.mongo.collections.playerStats), {"player.id":dbResponse[i].player.id}, {
+                $set: {"stats.advanced.defRankingTotal": (i + 1)}}, {multi: false}).then();
+        }
+    }).catch((err) => {
+        console.log(err);
+    });
+};
+
+/**
+ * Testing stuff
+ */
+module.exports.addOffensiveRating = function() {
+    return new Promise((resolve, reject) => {
+        self.sortPlayers({},{"stats.offense.ptsPerGame": -1}).then((dbResponse) => {
+            for(let i = 0; i < dbResponse.length; i++) {
+                dbService.update(db.collection(credentials.mongo.collections.playerStats), {"player.id":dbResponse[i].player.id}, {
+                    $set: {"stats.advanced.rankingTotal": (i + 1)}}, {multi: false}).then((res) => {
+                    resolve(res);
+                });
+            }
+        }).catch((err) => {
+            reject();
+        });
+    });
+};
+
+function addDefensiveRating() {
+    return new Promise((resolve, reject) => {
+        self.sortPlayers({},{"stats.offense.ptsPerGame": -1}).then((dbResponse) => {
+            for(let i = 0; i < dbResponse.length; i++) {
+                dbService.update(db.collection(credentials.mongo.collections.playerStats), {"player.id":dbResponse[i].player.id}, {
+                    $set: {"stats.defense.stl": (i + 1)}}, {multi: false}).then((res) => {
+                    resolve(res);
+                });
+            }
+        }).catch((err) => {
+            reject();
+        });
+    });
+}
+
+function addUsageRate() {
+    return new Promise((resolve, reject) => {
+
+    });
+}
+
+/**
+ * Insert all players
+ *
+ * Inserts all players into the database with the specified
+ * collection that is provided from db module. Will receive
+ * payload, that is, the array of json objects from the
+ * payload function and will insert that data into the db
+ * via the db service insert method
+ */
+module.exports.insertAllPlayersTest = function() {
+    try {
+        this.getAllPlayers().then((data) => {
+            // get the payload
+            let payload = responseParser.payload(data, "playerStats");
+            // connect to db
+            let options = {};
+            // insert
+            dbService.insert(db.collection(credentials.mongo.collections.playerStats), payload, options).then((res) => {
+                console.log('Inserted successfully...');
+                let promises = Promise.all([
+                    addDefensiveRating(),
+                    addOffensiveRating()
+                ]);
+                promises.then(() => {
+                    console.log('Added stats successfully...');
+                });
+            }).catch((err) => {
+                throw new Error(err);
+            });
+        }).catch((data) => {
+            console.log(data);
+            console.log(new Error(data));
+        }).then().then();
+    } catch(e) {
+        console.log('An error occurred: ' + e);
+    }
+};
+
+
+
+/**
  * Join
  *
  * "Joins" the collections team stats and player
@@ -88,27 +261,7 @@ module.exports.insertTeamRosters = function() {
         });
     });
 };
-/**
- * Get all team stats
- *
- * Makes a call to the mysportsfeeds api to gather
- * the data specified by the request manager (in
- * this case, all players) and returns a promise
- * with the raw data
- */
-module.exports.getAllSeasonalTeamStats = function() {
-    return new Promise((resolve, reject) => {
-        let request = requestManager.buildRequest('v2.0', 'nba', '2018-2019-regular', 'team_stats_totals', {});
-        let data = requestManager.makeRequest(request);
-        if(data) {
-            resolve(data);
-        } else if(!data) {
-            reject('The Promise Request Could Not Be Made');
-        } else if(data.playerStatsTotals.length == 0) {
-            reject('The Requested Resource Could Not Be Found');
-        }
-    });
-};
+
 
 
 /**
@@ -135,6 +288,41 @@ module.exports.getAllPlayerProfiles = function() {
 };
 
 
+function updateTeamStatsWithImages() {
+    let teamIds = ref.teamIds;
+    for(let i = 0; i < teamIds.length; i++) {
+        let current = teamIds[i];
+        dbService.find(db.collection(credentials.mongo.collections.teamRosters), {"team.id":Number(current)}, {}).then(function(dbResponse) {
+            let currentTeam = dbResponse[0];
+            let teamName = currentTeam.team.abbreviation;
+            // check for cases
+            switch(teamName) {
+                case "BRO":
+                    teamName = "BKN";
+                    break;
+                case "NOP":
+                    teamName = "NO";
+                    break;
+                case "UTA":
+                    teamName = "UTH";
+                    break;
+                case "OKL":
+                    teamName = "OKC";
+                    break;
+            }
+            teamName.toLowerCase();
+            let url = "https://a.espncdn.com/i/teamlogos/nba/500/" + teamName + ".png";
+            dbService.update(db.collection(credentials.mongo.collections.teamRosters), {"team.id":Number(current)}, { $set: {"team.officalLogoImageSrc" : url} }, {}).then(function(res) {
+                console.log('Successfully updated')
+            }).catch(function(err) {
+                throw err;
+            });
+        }).catch(function(err) {
+            throw new Error(err);
+        });
+    }
+}
+
 /**
  * Insert all team stats
  *
@@ -144,7 +332,7 @@ module.exports.getAllPlayerProfiles = function() {
  * payload function and will insert that data into the db
  * via the db service insert method
  */
-module.exports.insertAllSeasonalTeamStats = function() {
+module.exports.insertTeamProfiles = function() {
     try {
         this.getAllSeasonalTeamStats().then((data) => {
             // get the payload
@@ -153,6 +341,12 @@ module.exports.insertAllSeasonalTeamStats = function() {
             let options = {};
             // insert
             dbService.insert(db.collection(credentials.mongo.collections.teamStats), payload, options).then((res) => {
+                let promises = Promise.all([
+                    updateTeamStatsWithImages()
+                ]);
+                promises.then(() => {
+                    console.log('Added additional fields successfully...');
+                });
                 console.log('Inserted successfully...');
             }).catch((err) => {
                 throw new Error(err);
@@ -177,7 +371,7 @@ module.exports.insertAllSeasonalTeamStats = function() {
  */
 module.exports.insertAllPlayerProfiles = function() {
     try {
-        this.getAllPlayerProfiles().then((data) => {
+        getAllPlayerProfiles().then((data) => {
         let payload = responseParser.payload(data, "players");
         let options = {};
         // change the collection
@@ -248,10 +442,6 @@ function updatePlayerWithId(id, arr, options) {
         throw new Error(e);
     }
 }
-// export the module
-module.exports.updatePlayerWithId = updatePlayerWithId;
-
-
 
 /**
  * Update player
@@ -274,40 +464,7 @@ function updatePlayer(query, arr, options) {
     }
 }
 
-module.exports.updatePlayerProfilesWithTeamImages = function() {
-    let teamIds = ref.teamIds;
-    for(let i = 0; i < teamIds.length; i++) {
-        let current = teamIds[i];
-        dbService.find(db.collection(credentials.mongo.collections.teamRosters), {"team.id":Number(current)}, {}).then(function(dbResponse) {
-            let currentTeam = dbResponse[0];
-            let teamName = currentTeam.team.abbreviation;
-            // check for cases
-            switch(teamName) {
-                case "BRO":
-                    teamName = "BKN";
-                    break;
-                case "NOP":
-                    teamName = "NO";
-                    break;
-                case "UTA":
-                    teamName = "UTH";
-                    break;
-                case "OKL":
-                    teamName = "OKC";
-                    break;
-            }
-            teamName.toLowerCase();
-            let url = "https://a.espncdn.com/i/teamlogos/nba/500/" + teamName + ".png";
-            dbService.update(db.collection(credentials.mongo.collections.teamRosters), {"team.id":Number(current)}, { $set: {"team.officalLogoImageSrc" : url} }, {}).then(function(res) {
-                console.log('Successfully updated')
-            }).catch(function(err) {
-                throw err;
-            });
-        }).catch(function(err) {
-            throw new Error(err);
-        });
-    }
-};
+
 
 /**
  * Update all players
@@ -369,25 +526,6 @@ module.exports.updateAllPlayers = function() {
 };
 
 
-/**
- * find player with id
- *
- * Takes an id of a player and will find that
- * player in the collection
- */
-module.exports.findPlayerWithId = function(id, options, callback) {
-    options = {} || options;
-    try {
-        dbService.find(db.collection(credentials.mongo.collections.playerStats), {"player.id":id}, options).then(function(result) {
-            callback(result[0] == "undefined"? [] : result[0]);
-        }).catch(function(err) {
-            throw new Error(err);
-        })
-    } catch(e) {
-        console.log('An error occurred: ' + e);
-    }
-};
-
 
 /**
  * Wild card search
@@ -404,89 +542,4 @@ module.exports.wildcard = function(queryString, options, callback) {
 };
 
 
-
-/**************************************************************
- ************************* FILE WRITERS ***********************
- **************************************************************/
-
-
-
-/**
- * Get all team ids
- *
- * Writes to a text file a comma delimited list of
- * all team ids. To avoid duplicates, a blacklist is
- * maintained; if the next id is discovered that is
- * already in the blacklist, this means its already found
- * and we can therefore skip it
- */
-module.exports.getAllTeamIds = function() {
-        dbService.find(db.collection(credentials.mongo.collections.playerStats), {}, {}).then((data) => {
-            let blacklist = [];
-            let dataField = [];
-            for(let i = 0; i < data.length; i++) {
-                let current = data[i];
-                try {
-                    // don't write them twice
-                    if(!blacklist.includes(current.team.id.toString())) {
-                        dataField.push("'" + current.team.id.toString() +"'");
-                    }
-                    // keep track
-                    blacklist.push(current.team.id.toString());
-                } catch(err) {
-                    if(blacklist.length < 1) {
-                        console.log('Field is null or undefined, skipping over...');
-                    }
-                }
-            }
-            console.log(dataField);
-            file.appendFile('./service/service-workers/ref/TeamIDs.txt', dataField.toString(), 'utf8', function(err) {
-                if(err) {
-                    console.log(err);
-                } else {
-                    console.log('Successfully wrote...');
-                }
-            })
-        }).catch((err) => {
-            throw new Error(err);
-        });
-};
-
-/**
- * Get all player ids
- *
- * Writes to a text file a comma delimited list of
- * all player ids. To avoid duplicates, a blacklist is
- * maintained; if the next id is discovered that is
- * already in the blacklist, this means its already found
- * and we can therefore skip it
- */module.exports.getAllPlayerIds = function() {
-    dbService.find(db.collection(credentials.mongo.collections.playerStats), {}, {}).then((data) => {
-        let blacklist = [];
-        let dataField = [];
-        for(let i = 0; i < data.length; i++) {
-            let current = data[i];
-            try {
-                if(!blacklist.includes(current.player.id.toString())) {
-                    dataField.push("'" + current.player.id.toString() +"'");
-                }
-                blacklist.push(current.player.id.toString());
-            } catch(err) {
-                if(blacklist.length < 1) {
-                    console.log('Field is null or undefined, skipping over...');
-                }
-            }
-        }
-        console.log(dataField);
-        file.appendFile('./service/service-workers/ref/PlayerIDs.txt', dataField.toString(), 'utf8', function(err) {
-            if(err) {
-                console.log(err);
-            } else {
-                console.log('Successfully wrote...');
-            }
-        })
-    }).catch((err) => {
-        throw new Error(err);
-    });
-};
 

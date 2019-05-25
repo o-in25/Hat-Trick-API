@@ -40,16 +40,17 @@ module.exports.updateMany = function(collection, query, update, options) {
             reject(new Error('Query must be of type object'));
         } else {
             options = options || {};
-            collection.updateMany(query, update, options).toArray(function(err, res) {
-                if(err) {
-                    reject(new Error(err));
-                } else {
-                    resolve(res);
-                }
+            collection.updateMany(query, update, options).then((res) => {
+                resolve(res);
+            }).catch((err) => {
+                throw err;
             });
         }
     });
 };
+
+
+
 
 module.exports.find = function(collection, query, options) {
     return new Promise((resolve, reject) => {
@@ -68,6 +69,8 @@ module.exports.find = function(collection, query, options) {
        }
     });
 };
+
+
 
 module.exports.wildcardSearch = function(collection, query, options) {
     return new Promise((resolve, reject) => {
@@ -99,7 +102,6 @@ module.exports.replaceOne = function(collection, query, update, options) {
 
 module.exports.indexCollection = function(collection) {
     collection.createIndex({"$**":"text"});
-
 };
 
 module.exports.sort = function(collection, query, options, sort) {
@@ -115,6 +117,19 @@ module.exports.sort = function(collection, query, options, sort) {
     });
 };
 
+
+module.exports.aggregateTest = function(collection, options, aggregation) {
+    return new Promise((resolve, reject) => {
+        options = {} || options;
+        collection.aggregate(aggregation, options).toArray((err, res) => {
+           if(err) {
+               reject(err);
+           } else {
+               resolve(res);
+           }
+        });
+    });
+};
 
 module.exports.aggregate = function(collection, options, aggregation, callback) {
     return collection.aggregate(aggregation, options).toArray(function(err, res) {

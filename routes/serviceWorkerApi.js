@@ -10,7 +10,7 @@ let serviceWorker = require('./../service/service-workers/serviceWorker');
 /* gets the entire body response for each request */
 
 
-
+let model = {"stats.offense.ptsPerGame": -1};
 /*
  * Returns all players who match the
  * given string
@@ -22,15 +22,40 @@ router.get('/search/:any', function(req, res, next) {
     });
 });
 
-router.get('/ranking/field', function(req, res, next) {
-    serviceWorker.sortPlayers({}, {
-        "stats.offense.ptsPerGame": -1
-    }).then(function(data) {
-        res.send(data);
+router.get('/rank/stats/offense/ptsPerGame', function(req, res, next) {
+
+    serviceWorker.sortPlayers({}, {"stats.offense.ptsPerGame": -1}).then((dbResponse) => {
+        res.send(dbResponse);
+    }).catch((err) => {
+     console.log(err);
+    });
+});
+
+router.get('/rank/stats/offense/astPerGame', function(req, res, next) {
+
+    serviceWorker.sortPlayers({}, {"stats.offense.astPerGame": -1}).then((dbResponse) => {
+        res.send(dbResponse);
     }).catch((err) => {
         console.log(err);
     });
 });
 
+router.get('/rank/stats/miscellaneous/plusMinusPerGame', function(req, res, next) {
+
+    serviceWorker.sortPlayers({}, {"stats.miscellaneous.plusMinusPerGame": -1}).then((dbResponse) => {
+        res.send(dbResponse);
+    }).catch((err) => {
+        console.log(err);
+    });
+});
+
+router.get('/rank/stats/defense/blocksPerGame', function(req, res, next) {
+
+    serviceWorker.sortPlayers({}, {"stats.defense.blkPerGame": -1}).then((dbResponse) => {
+        res.send(dbResponse);
+    }).catch((err) => {
+        console.log(err);
+    });
+});
 
 module.exports = router;

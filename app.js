@@ -28,6 +28,8 @@ let serviceWorkerApi = require('./routes/serviceWorkerApi');
 // service worker - does some useful shit
 let serviceWorker = require('./service/service-workers/serviceWorker');
 let dbService = require('./service/dbService');
+
+let insertService = require('./service/service-workers/insertionWorker');
 //connect to db
 const url = 'mongodb://' +  credentials.mongo.username + ':' + credentials.mongo.password + '@hattrickcluster-shard-00-00-zgcgc.mongodb.net:27017,hattrickcluster-shard-00-01-zgcgc.mongodb.net:27017,hattrickcluster-shard-00-02-zgcgc.mongodb.net:27017/test?ssl=true&replicaSet=HatTrickCluster-shard-0&authSource=admin&retryWrites=true';
 db.init(url).then((config) => {
@@ -38,27 +40,9 @@ db.init(url).then((config) => {
      * to use and the service will be
      * executed upon the start of the server
      */
+    insertService.insertTeamProfiles();
+    insertService.insertPlayerProfiles();
 
-    //serviceWorker.insertTest();
-    //serviceWorker.updateTest();
-    //serviceWorker.insertAllPlayers();
-    //serviceWorker.getAllPlayerIds();
-    //serviceWorker.getAllTeamIds();
-    //serviceWorker.updateAllPlayers();
-    //serviceWorker.findDuplicates();
-    //serviceWorker.deriveTeamMinutes();
-    //serviceWorker.insertAllPlayers();
-    //dbService.indexCollection(config.collection);
-    /*
-        serviceWorker.wildcard("LeBron", {}, function(data) {
-            console.log(data);
-        });
-     */
-    //serviceWorker.insertAllPlayerProfiles();
-    //serviceWorker.updatePlayerProfilesWithTeamImages();
-    //serviceWorker.insertTeamRosters();
-    serviceWorker.addSortField();
-    
 }).catch((err) => {
     throw new Error(err);
 });
