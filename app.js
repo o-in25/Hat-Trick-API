@@ -40,30 +40,9 @@ db.init(url).then((config) => {
      * to use and the service will be
      * executed upon the start of the server
      */
-
-    //serviceWorker.insertTest();
-    //serviceWorker.updateTest();
-    //serviceWorker.insertAllPlayers();
-    //serviceWorker.getAllPlayerIds();
-    //serviceWorker.getAllTeamIds();
-    //serviceWorker.updateAllPlayers();
-    //serviceWorker.findDuplicates();
-    //serviceWorker.deriveTeamMinutes();
-    //serviceWorker.insertAllPlayers();
-    //dbService.indexCollection(config.collection);
-    /*
-        serviceWorker.wildcard("LeBron", {}, function(data) {
-            console.log(data);
-        });
-     */
-    //serviceWorker.insertAllPlayerProfiles();
-    //serviceWorker.updatePlayerProfilesWithTeamImages();
-    //serviceWorker.insertTeamRosters();
-    //serviceWorker.addOffRtng();
-    //serviceWorker.addDefRtng();
     insertService.insertTeamProfiles();
-    //insertService.insertPlayerProfiles();
-    //insertService.insertTeamProfiles();
+    insertService.insertPlayerProfiles();
+
 }).catch((err) => {
     throw new Error(err);
 });

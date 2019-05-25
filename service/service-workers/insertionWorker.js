@@ -202,6 +202,7 @@ function addAdvancedStatistics() {
                                "stats.advanced.asstPct":assistPercentage
                            }
                        }, {multi: false}).then((res) => {
+                           console.log('Added advanced statistics...');
                            resolve(res);
                        })
                    })
@@ -217,6 +218,7 @@ function addAdvancedStatistics() {
 
 
 module.exports.insertTeamProfiles = function() {
+    console.log('Inserting team profiles...');
     try {
         serviceWorker.getAllSeasonalTeamStats().then((data) => {
             // get the payload
@@ -250,6 +252,7 @@ module.exports.insertTeamProfiles = function() {
 
 
 module.exports.insertPlayerProfiles = function() {
+    console.log('Inserting player profiles...');
     try {
         serviceWorker.getAllPlayers().then((data) => {
             let payload = responseParser.payload(data, "playerStats");

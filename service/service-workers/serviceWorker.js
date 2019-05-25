@@ -79,29 +79,44 @@ module.exports.getAllSeasonalTeamStats = function() {
 
 module.exports.calculateUsageRate = function(playerAt) {
     return new Promise((resolve, reject) => {
-        dbService.find(db.collection(credentials.mongo.collections.teams), {"team.id":playerAt.currentTeam,id}, {}).then((dbResponse) => {
-            let teamMinutes = dbResponse.stats.miscellaneous.teamMin;
-            let teamfieldGoalAttempts = dbResponse.stats.fieldGoals.fgAtt;
-            let teamFreeThrowAttempts = dbResponse.stats.freeThrows.ftAtt;
-            let teamTov = dbResponse.stats.defense.tov;
-            let usageRate = stats.usageRate(playerAt.fieldGoals.fgAtt, playerAt.freeThrows.ftAtt, playerAt.defense.tov, teamMinutes, (Math.ceil(playerAt.miscellaneous.minSeconds / 60)), teamfieldGoalAttempts, teamFreeThrowAttempts, teamTov);
+        let currentTeam = playerAt.player.currentTeam;
+        // if they they're not on a team - they don't
+        // have a usage rate
+        if(currentTeam != null) {
+            dbService.find(db.collection(credentials.mongo.collections.teams), {"team.id":playerAt.player.currentTeam.id}, {}).then((dbResponse) => {
+                let debug = dbResponse.stats;
+                let teamMinutes = dbResponse.stats.miscellaneous.teamMin;
+                let teamfieldGoalAttempts = dbResponse.stats.fieldGoals.fgAtt;
+                let teamFreeThrowAttempts = dbResponse.stats.freeThrows.ftAtt;
+                let teamTov = dbResponse.stats.defense.tov;
+                let usageRate = stats.usageRate(playerAt.fieldGoals.fgAtt, playerAt.freeThrows.ftAtt, playerAt.defense.tov, teamMinutes, (Math.ceil(playerAt.miscellaneous.minSeconds / 60)), teamfieldGoalAttempts, teamFreeThrowAttempts, teamTov);
+                resolve(usageRate);
+            }).catch((err) => {
+                reject(err);
+            });
+        } else {
+            let usageRate = 0;
             resolve(usageRate);
-        }).catch((err) => {
-            reject(err);
-        });
+        }
     });
 };
 
 module.exports.calculateAssistPercentage = function(playerAt) {
   return new Promise((resolve, reject) => {
-     dbService.find(db.collection(credentials.mongo.collections.teams), {"team.id":playerAt.currentTeam,id}, {}).then((dbResponse) => {
-         let teamMinutes = dbService.stats.miscellaneous.teamMin;
-         let teamFieldGoals = dbService.stats.fieldGoals.fgMade;
-         let assistPercentage = stats.assistPercentage(playerAt.offense.ast, (Math.ceil(playerAt.miscellaneous.minSeconds / 60)), teamMinutes, teamFieldGoals, playerAt.offense.fgMade);
+     let currentTeam = playerAt.player.currentTeam;
+     if(currentTeam != null) {
+         dbService.find(db.collection(credentials.mongo.collections.teams), {"team.id":playerAt.currentTeam.id}, {}).then((dbResponse) => {
+             let teamMinutes = dbService.stats.miscellaneous.teamMin;
+             let teamFieldGoals = dbService.stats.fieldGoals.fgMade;
+             let assistPercentage = stats.assistPercentage(playerAt.offense.ast, (Math.ceil(playerAt.miscellaneous.minSeconds / 60)), teamMinutes, teamFieldGoals, playerAt.offense.fgMade);
+             resolve(assistPercentage);
+         }).catch((err) => {
+             reject(err);
+         });
+     } else {
+         let assistPercentage = 0;
          resolve(assistPercentage);
-     }).catch((err) => {
-         reject(err);
-     })
+     }
   });
 };
 
