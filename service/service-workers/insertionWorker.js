@@ -202,7 +202,6 @@ function addAdvancedStatistics() {
                                "stats.advanced.asstPct":assistPercentage
                            }
                        }, {multi: false}).then((res) => {
-                           console.log('Added advanced statistics...');
                            resolve(res);
                        })
                    })
